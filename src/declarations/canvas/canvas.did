@@ -1,0 +1,16 @@
+type Result = 
+ variant {
+   err: Error;
+   ok;
+ };
+type Image = vec vec text;
+type Error = 
+ variant {
+   BadRequest;
+   InsufficientCycles;
+ };
+service : {
+  getHistory: () -> (vec Image) query;
+  insertImage: (Image, nat) -> (Result);
+  latest: () -> (Image) query;
+}
