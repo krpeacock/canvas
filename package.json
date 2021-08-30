@@ -39,6 +39,16 @@
     "last 2 edge version"
   ],
   "dependencies": {
+    "@adobe/react-spectrum": "^3.13.0",
+    "@react-spectrum/color": "^3.0.0-beta.3",
+    "@react-stately/color": "^3.0.0-beta.3",
+    "@types/react": "^16.8.0",
+    "@types/react-dom": "^16.8.0",
+    "css-loader": "^6.2.0",
+    "local-storage": "^2.0.0",
+    "react": "^16.8.0",
+    "react-dom": "^16.8.0",
+    "style-loader": "^3.2.1",
     "ts-loader": "^9.2.5",
     "typescript": "^4.4.2"
   }

@@ -1,7 +1,11 @@
 type Result = 
  variant {
    err: Error;
-   ok;
+   ok: record {
+         nat;
+         nat;
+         nat;
+       };
  };
 type Image = vec vec text;
 type Error = 
@@ -11,6 +15,6 @@ type Error =
  };
 service : {
   getHistory: () -> (vec Image) query;
-  insertImage: (Image, nat) -> (Result);
   latest: () -> (Image) query;
+  upload: (Image) -> (Result);
 }

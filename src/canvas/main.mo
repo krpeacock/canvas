@@ -1,6 +1,9 @@
 import Array "mo:base/Array";
-import Result "mo:base/Result";
 import Cycles "mo:base/ExperimentalCycles";
+import Iter "mo:base/Iter";
+import Result "mo:base/Result";
+import Text "mo:base/Text";
+import Debug "mo:base/Debug";
 
 actor {
     type Image = [[Text]];
@@ -12,8 +15,9 @@ actor {
 
     stable var balance = 0;
     stable var historyLength : Nat = 0;
+    var size = 400;
 
-    var emptyImage: Image = Array.freeze(Array.init<[Text]>(500, Array.freeze(Array.init<Text>(500, "#000000"))));
+    var emptyImage: Image = Array.freeze(Array.init<[Text]>(400, Array.freeze(Array.init<Text>(400, "#000000"))));
     
     stable var history: [Image] = [emptyImage];
 
@@ -31,7 +35,33 @@ actor {
         return history;
     };
 
-    public func insertImage(image: Image, pixelsChanged: Nat) : async Result.Result<(), Error> {
+    type DiffSize = Nat;
+
+    func compareImages(oldImage: Image, newImage: Image): DiffSize {
+        var diffSize = 0;
+        var y = 0;
+        var x = 0;
+        while (y < 400){
+            while(x < 400){
+                let oldValue = oldImage[y][x];
+                let newValue = newImage[y][x];
+                let equal = Text.equal(oldValue,newValue);
+                if(not equal){
+                    Debug.print(oldValue);
+                    Debug.print(newValue);
+                    diffSize:= diffSize + 1;
+                };
+                x:= x + 1;
+            };
+            y:= y + 1;
+        };
+        return diffSize;
+    };
+
+    public func upload(image: Image) : async Result.Result<(Nat, Nat, Nat), Error> {
+        let oldImage: Image = history[historyLength];
+        let pixelsChanged = compareImages(oldImage, image);
+
         let cost = pixelsChanged * price;
 
         let amount = Cycles.available();
@@ -44,7 +74,7 @@ actor {
         if(accepted == cost){
             history := Array.append(history, [image]);
             historyLength := historyLength + 1;
-            return #ok(());
+            return #ok((pixelsChanged, amount, cost));
         };
 
         return  #err(#InsufficientCycles);
