@@ -6,6 +6,7 @@ import {
   Dialog,
   DialogTrigger,
   Divider,
+  Flex,
   Header,
   Heading,
   Text,
@@ -18,10 +19,11 @@ import { compareImages, extractImage } from "./utils";
 interface Props {
   ctx?: CanvasRenderingContext2D;
   latest?: Image;
+  isModified: boolean;
 }
 
 function Submit(props: Props) {
-  const { ctx, latest } = props;
+  const { ctx, latest, isModified } = props;
   const [price, setPrice] = React.useState("");
 
   useEffect(() => {
@@ -64,7 +66,11 @@ function Submit(props: Props) {
         if (isOpen) checkImage();
       }}
     >
-      <ActionButton type="submit">Upload your version</ActionButton>
+      <Flex marginStart="2rem">
+        <Button variant="cta" type="submit" isDisabled={!isModified}>
+          Upload your version
+        </Button>
+      </Flex>
       {(close) => {
         return (
           <Dialog>

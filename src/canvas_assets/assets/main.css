@@ -10,6 +10,12 @@ main {
     min-height: 100vh;
 }
 
+figure {
+    margin: 0; 
+    padding: 0;
+    margin-bottom: 2rem;
+}
+
 img {
     max-width: 50vw;
     max-height: 25vw;
