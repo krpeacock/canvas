@@ -12,7 +12,7 @@ import {
   Text,
 } from "@adobe/react-spectrum";
 import React, { useEffect } from "react";
-import { canvas } from "../../declarations/canvas";
+import { canisterId, canvas } from "../../declarations/canvas";
 import { Image } from "../../declarations/canvas/canvas.did";
 import { compareImages, extractImage } from "./utils";
 
@@ -60,6 +60,18 @@ function Submit(props: Props) {
     }
   };
 
+  const login = async () => {
+    const connected = await (window as any).ic.plug.requestConnect({
+      whiteList: canisterId,
+      host: location.hostname,
+    });
+    console.log(connected);
+    (async () => {
+      const result = await (window as any).ic.plug.requestBalance();
+      console.log(result);
+    })();
+  };
+
   return (
     <DialogTrigger
       onOpenChange={(isOpen) => {
@@ -87,6 +99,9 @@ function Submit(props: Props) {
                 $1.42 USD, so about ${(Number(price) * 1.4228).toFixed(2)}
               </p>
             </Content>
+            <Button variant="primary" onPress={login}>
+              Login with Plug
+            </Button>
             <ButtonGroup>
               <Button variant="secondary" onPress={close}>
                 Cancel

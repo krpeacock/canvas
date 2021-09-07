@@ -1,9 +1,14 @@
 import Array "mo:base/Array";
 import Cycles "mo:base/ExperimentalCycles";
+import Debug "mo:base/Debug";
+import HashMap "mo:base/HashMap";
 import Iter "mo:base/Iter";
+import Nat "mo:base/Nat";
+import Option "mo:base/Option";
+import Principal "mo:base/Principal";
 import Result "mo:base/Result";
 import Text "mo:base/Text";
-import Debug "mo:base/Debug";
+import Trie "mo:base/Trie";
 
 actor {
     type Image = [[Text]];
@@ -13,6 +18,12 @@ actor {
         #BadRequest;
     };
 
+    type SuccessUpdate = {
+        newHeight: Nat;
+        accountBalance: Nat; 
+    };
+
+    stable var ledger : Trie.Trie<Principal, Nat> = Trie.empty();
     stable var balance = 0;
     stable var historyLength : Nat = 0;
     var size = 400;
@@ -58,25 +69,69 @@ actor {
         return diffSize;
     };
 
-    public func upload(image: Image) : async Result.Result<(Nat, Nat, Nat), Error> {
+    public shared({ caller }) func wallet_receive() : async Nat {
+        let amount = Cycles.available();
+        let accepted = Cycles.accept(amount);
+        assert(accepted > 0);
+
+        let existingBalance = Trie.find(ledger, key(caller), Principal.equal);
+        var balance:Nat = accepted;
+        switch(existingBalance){
+            case(null){};
+            case (?v){
+                balance := balance + v;
+            };
+        };
+
+        let result = Trie.put(
+            ledger,
+            key(caller),
+            Principal.equal,
+            balance
+        );
+
+        return accepted;
+    };
+
+    public shared({caller}) func upload(image: Image) : async Result.Result<SuccessUpdate, Error> {
         let oldImage: Image = history[historyLength];
         let pixelsChanged = compareImages(oldImage, image);
 
         let cost = pixelsChanged * price;
 
-        let amount = Cycles.available();
+        let existingBalance = Trie.find(ledger, key(caller), Principal.equal);
+        var balance:Nat = 0;
+        switch(existingBalance){
+            case(null){};
+            case (?v){
+                balance := balance + v;
+            };
+        };
         
-        // Commented for development
-        // let accepted = Cycles.accept(cost);
-        let accepted = cost;
-
-        // If adeuqate amount, accept the update
-        if(accepted == cost){
+        // If adequate amount, accept the update
+        if(balance >= cost){
             history := Array.append(history, [image]);
             historyLength := historyLength + 1;
-            return #ok((pixelsChanged, amount, cost));
+
+            let newBalance = Nat.sub(balance, cost);
+
+            let update = Trie.put(
+                ledger,
+                key(caller),
+                Principal.equal,
+                newBalance
+            );
+
+            return #ok({
+                newHeight = historyLength;
+                accountBalance = newBalance;
+            });
         };
 
         return  #err(#InsufficientCycles);
+    };
+
+    private func key(x : Principal) : Trie.Key<Principal> {
+        return { key = x; hash = Principal.hash(x) }
     };
 };
