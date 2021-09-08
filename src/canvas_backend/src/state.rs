@@ -178,8 +178,8 @@ mod tests {
     fn update_pixel_changes_tile() {
         let mut canvas_state = CanvasState::default();
 
-        let x = 2 * 64 + 1;
-        let y = 15 * 64 + 1;
+        let x = (ROW_LENGTH - 1) * TILE_SIZE + 1;
+        let y = x;
         let rel_x = x % TILE_SIZE;
         let rel_y = y % TILE_SIZE;
         let col = x / TILE_SIZE;
