@@ -14,22 +14,20 @@ pub struct CanvasState {
     pub overview_image: Vec<u8>,
     pub tile_images: Vec<Vec<u8>>,
     pub raw_overview: DynamicImage,
-    pub raw_tiles: Vec<RgbaImage>,
+    pub raw_tiles: Vec<DynamicImage>,
 }
 
 impl CanvasState {
     pub fn new() -> Self {
         let raw_tiles = (0..NO_TILES)
-            .map(|_i| RgbaImage::new(TILE_SIZE, TILE_SIZE))
+            .map(|_i| DynamicImage::ImageRgba8(RgbaImage::new(TILE_SIZE, TILE_SIZE)))
             .collect::<Vec<_>>();
 
         let tile_images = raw_tiles
             .iter()
             .map(|t| {
-                let dyn_image = DynamicImage::ImageRgba8(t.clone());
                 let mut bytes = vec![];
-                dyn_image
-                    .write_to(&mut bytes, image::ImageOutputFormat::Png)
+                t.write_to(&mut bytes, image::ImageOutputFormat::Png)
                     .expect("Could not encode tile as PNG!");
                 bytes
             })
@@ -71,7 +69,7 @@ impl CanvasState {
             .raw_tiles
             .get_mut(tile_idx as usize)
             .expect("Invalid tile index.");
-        raw_tile.put_pixel(x, y, rgba);
+        raw_tile.as_mut_rgba8().unwrap().put_pixel(x, y, rgba);
         let scaled = imageops::resize(
             raw_tile,
             OVERVIEW_TILE_SIZE,
@@ -82,8 +80,7 @@ impl CanvasState {
         replace(&mut self.raw_overview, &scaled, ovw_x, ovw_y);
 
         let mut bytes: Vec<u8> = Vec::new();
-        let dyn_image = DynamicImage::ImageRgba8(raw_tile.clone());
-        dyn_image
+        raw_tile
             .write_to(&mut bytes, image::ImageOutputFormat::Png)
             .expect("Could not encode tile as PNG!");
         *self
