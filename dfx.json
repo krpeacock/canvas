@@ -1,10 +1,10 @@
 {
   "canisters": {
     "canvas_backend": {
-      "build": "cargo build --target wasm32-unknown-unknown --package canvas_backend --release",
+      "build": "./build.sh",
       "type": "custom",
       "candid": "src/canvas_backend/src/canvas_backend.did",
-      "wasm": "target/wasm32-unknown-unknown/release/canvas_backend.wasm"
+      "wasm": "target/wasm32-unknown-unknown/release/canvas_backend-opt.wasm"
     },
     "canvas_assets": {
       "type": "assets",
