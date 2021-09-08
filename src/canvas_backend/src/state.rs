@@ -72,12 +72,17 @@ impl CanvasState {
             .get_mut(tile_idx as usize)
             .expect("Invalid tile index.");
         raw_tile.put_pixel(x, y, rgba);
-        let scaled = imageops::resize(raw_tile, TILE_SIZE, TILE_SIZE, FilterType::Gaussian);
+        let scaled = imageops::resize(
+            raw_tile,
+            OVERVIEW_TILE_SIZE,
+            OVERVIEW_TILE_SIZE,
+            FilterType::Gaussian,
+        );
         let (ovw_x, ovw_y) = get_tile_offset(tile_idx);
         replace(&mut self.raw_overview, &scaled, ovw_x, ovw_y);
 
         let mut bytes: Vec<u8> = Vec::new();
-        let dyn_image = DynamicImage::ImageRgba8(scaled);
+        let dyn_image = DynamicImage::ImageRgba8(raw_tile.clone());
         dyn_image
             .write_to(&mut bytes, image::ImageOutputFormat::Png)
             .expect("Could not encode tile as PNG!");
@@ -195,7 +200,7 @@ mod tests {
             r: 255,
             g: 255,
             b: 255,
-            a: 100,
+            a: 255,
         };
         canvas_state.update_pixel(tile_idx, pos, color);
 
@@ -216,8 +221,7 @@ mod tests {
 
         let actual_pixel = img2.get_pixel(rel_x, rel_y).to_rgba();
         let actual_pixel = actual_pixel.channels();
-        // obviously not the desired result, but somewhere a filter gets applied (compression artifact?)
-        let expected_pixel = &[158, 158, 158, 158];
+        let expected_pixel = &[255, 255, 255, 255];
         assert_eq!(actual_pixel, expected_pixel);
     }
 }
