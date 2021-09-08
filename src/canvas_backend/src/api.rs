@@ -1,5 +1,5 @@
 use ic_cdk::{
-    export::candid::{CandidType, Deserialize, export_service, candid_method},
+    export::candid::{candid_method, export_service, CandidType, Deserialize},
     storage,
 };
 use ic_cdk_macros::*;
@@ -78,7 +78,7 @@ pub fn http_request(request: HttpRequest) -> HttpResponse {
 fn update_pixel(tile_idx: u32, pos: Position, color: Color) {
     let canvas = storage::get_mut::<CanvasState>();
     let edits = storage::get_mut::<EditsState>();
-    if let Ok(_) = edits.register_edit(ic_cdk::caller(), ic_cdk::api::time()) {
+    if edits.register_edit(ic_cdk::caller(), ic_cdk::api::time()).is_ok() {
         canvas.update_pixel(tile_idx, pos, color);
     }
 }

@@ -67,12 +67,12 @@ impl CanvasState {
         *self
             .tile_images
             .get_mut(tile_idx)
-            .expect("invalid tile idx") = bytes;
+            .expect("Invalid tile index.") = bytes;
 
         let mut bytes: Vec<u8> = Vec::new();
         self.raw_overview
             .write_to(&mut bytes, image::ImageOutputFormat::Png)
-            .expect("Could not encode overview image.");
+            .expect("Could not encode overview image as PNG!");
         self.overview_image = bytes;
     }
 }
@@ -84,8 +84,8 @@ impl Default for CanvasState {
 }
 
 fn get_tile_offset(tile_idx: usize) -> (u32, u32) {
-    let x = (tile_idx as u32 / ROW_LENGTH) * OVERVIEW_TILE_SIZE;
-    let y = (tile_idx as u32 % ROW_LENGTH) * OVERVIEW_TILE_SIZE;
+    let x = (tile_idx as u32 % ROW_LENGTH) * OVERVIEW_TILE_SIZE;
+    let y = (tile_idx as u32 / ROW_LENGTH) * OVERVIEW_TILE_SIZE;
     (x, y)
 }
 
@@ -115,7 +115,7 @@ impl EditsState {
     }
 
     pub fn start(&mut self) -> Result<(), &str> {
-        if let Some(_) = self.start {
+        if self.start.is_some() {
             Err("already started")
         } else {
             self.start = Some(ic_cdk::api::time());
