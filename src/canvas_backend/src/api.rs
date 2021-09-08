@@ -11,7 +11,7 @@ use crate::{
 
 /// All images have square shape and the side length must be a power of 2.
 pub const OVERVIEW_IMAGE_SIZE: u32 = 512;
-pub const IMAGE_SIZE: u32 = 16386;
+pub const IMAGE_SIZE: u32 = 1024;
 pub const TILE_SIZE: u32 = 64;
 pub const NO_TILES: u32 = (IMAGE_SIZE / TILE_SIZE) * (IMAGE_SIZE / TILE_SIZE);
 
