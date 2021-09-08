@@ -1,10 +1,13 @@
-use ic_cdk::export::{
-    candid::{CandidType, Deserialize},
+use ic_cdk::{
+    export::candid::{CandidType, Deserialize},
+    storage,
 };
-use ic_cdk::storage;
 use ic_cdk_macros::*;
 
-use crate::{http_request::{self, HttpRequest, HttpResponse}, state::CanvasState};
+use crate::{
+    http_request::{self, HttpRequest, HttpResponse},
+    state::CanvasState,
+};
 
 /// All images have square shape and the side length must be a power of 2.
 pub const OVERVIEW_IMAGE_SIZE: u32 = 512;
@@ -27,7 +30,7 @@ pub struct Color {
 }
 
 #[query]
-fn http_request(http_request: HttpRequest) -> HttpResponse {
+pub fn http_request(http_request: HttpRequest) -> HttpResponse {
     HttpResponse {
         status_code: 200,
         headers: vec![],

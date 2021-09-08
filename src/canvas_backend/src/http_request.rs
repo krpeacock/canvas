@@ -1,4 +1,4 @@
-use ic_cdk::export::candid::{CandidType, Deserialize, parser::value::IDLValue};
+use ic_cdk::export::candid::{parser::value::IDLValue, CandidType, Deserialize};
 use std::fmt::Debug;
 
 #[derive(Debug, Clone, Copy, Ord, PartialOrd, Eq, PartialEq)]
@@ -14,7 +14,7 @@ pub struct HttpRequest {
     pub headers: Vec<HeaderField>,
     //pub body: &'body [u8],
     #[serde(with = "serde_bytes")]
-    pub body: Vec<u8>
+    pub body: Vec<u8>,
 }
 
 #[derive(CandidType, Deserialize)]

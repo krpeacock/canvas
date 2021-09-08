@@ -1,6 +1,6 @@
 pub mod api;
-pub mod state;
 pub mod http_request;
+pub mod state;
 
 #[cfg(test)]
 mod tests {
