@@ -1,10 +1,10 @@
 const TILE_SIZE = 64;
 const FOCUS_SIZE = 128;
-const CANVAS_SIZE = 16384;
+const CANVAS_SIZE = 1024;
 const PREVIEW_SIZE = 512;
 const PREVIEW_SCALE_RATIO = CANVAS_SIZE / PREVIEW_SIZE;
 
-class Position {
+export class Position {
     x: number;
     y: number;
 
@@ -18,7 +18,7 @@ class Position {
     }
 }
 
-class Focus {
+export class Focus {
     position: Position;
     constructor(position: Position) {
         this.position = new Position(
