@@ -1,7 +1,11 @@
 import React from "react";
-import { Provider, defaultTheme, Flex, Header } from "@adobe/react-spectrum";
+import {
+  Provider as SpectrumProvider,
+  defaultTheme,
+  Flex,
+  Header,
+} from "@adobe/react-spectrum";
 import Canvases from "./Canvases";
-import { createContext } from "react";
 import { AuthClient } from "@dfinity/auth-client";
 import { ActorSubclass } from "@dfinity/agent";
 import {
@@ -13,8 +17,8 @@ import { useAuthClient } from "./hooks";
 import Logo from "./Logo";
 import LoginSection from "./LoginSection";
 import { useState } from "react";
-import { ColorResult } from "react-color";
 import Submit from "./Submit";
+import type { Provider } from "./hooks";
 
 interface Props {}
 
@@ -23,7 +27,7 @@ export const AppContext = React.createContext<{
   setAuthClient?: React.Dispatch<AuthClient>;
   isAuthenticated?: boolean;
   setIsAuthenticated?: React.Dispatch<React.SetStateAction<boolean>>;
-  login: () => void;
+  login: (provider: Provider) => Promise<void>;
   logout: () => void;
   actor?: ActorSubclass<_SERVICE>;
   position: Position;
@@ -31,7 +35,7 @@ export const AppContext = React.createContext<{
   color: Color;
   setColor?: React.Dispatch<React.SetStateAction<Color>>;
 }>({
-  login: () => {},
+  login: async (provider: Provider) => {},
   logout: () => {},
   position: { x: 0, y: 0 },
   color: {
@@ -61,7 +65,7 @@ function App(props: Props) {
   });
   console.log(actor);
   return (
-    <Provider theme={defaultTheme}>
+    <SpectrumProvider theme={defaultTheme}>
       <AppContext.Provider
         value={{
           authClient,
@@ -107,7 +111,7 @@ function App(props: Props) {
           <Submit />
         </main>
       </AppContext.Provider>
-    </Provider>
+    </SpectrumProvider>
   );
 }
 

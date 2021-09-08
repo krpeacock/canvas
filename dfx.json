@@ -5,6 +5,13 @@
       "type": "custom",
       "candid": "src/canvas_backend/src/canvas_backend.did",
       "wasm": "target/wasm32-unknown-unknown/release/canvas_backend.wasm"
+    },
+    "canvas_assets": {
+      "type": "assets",
+      "source": [
+        "src/canvas_assets/assets",
+        "dist/canvas_assets/"
+      ]
     }
   },
   "defaults": {

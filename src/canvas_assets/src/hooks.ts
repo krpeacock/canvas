@@ -6,6 +6,8 @@ import { canisterId, createActor } from "../../declarations/canvas_backend";
 import { _SERVICE } from "../../declarations/canvas_backend/canvas_backend.did";
 
 type UseAuthClientProps = {};
+
+export type Provider = "II" | "Plug";
 export function useAuthClient(props?: UseAuthClientProps) {
   const [authClient, setAuthClient] = useState<AuthClient>();
   const [actor, setActor] = useState<ActorSubclass<_SERVICE>>();
@@ -14,7 +16,6 @@ export function useAuthClient(props?: UseAuthClientProps) {
     undefined
   );
 
-  type Provider = "II" | "Plug";
   const login = async (provider: Provider) => {
     if (provider === "Plug") {
       const hasAllowed = await (window as any).ic.plug.requestConnect();
