@@ -74,6 +74,7 @@ pub fn http_request(request: HttpRequest) -> HttpResponse {
 }
 
 #[candid_method(update)]
+#[update]
 fn update_pixel(tile_idx: u32, pos: Position, color: Color) {
     let canvas = storage::get_mut::<CanvasState>();
     let edits = storage::get_mut::<EditsState>();
