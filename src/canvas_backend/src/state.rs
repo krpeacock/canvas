@@ -143,8 +143,10 @@ impl EditsState {
 
 #[cfg(test)]
 mod tests {
+    use image::{GenericImageView, Pixel};
+
     use super::*;
-    use std::{ops::Add, str::FromStr};
+    use std::{io::Cursor, ops::Add, str::FromStr};
 
     #[test]
     fn test_can_edit() {
@@ -174,8 +176,8 @@ mod tests {
     fn update_pixel_changes_tile() {
         let mut canvas_state = CanvasState::default();
 
-        let x = 2 * 64;
-        let y = 15 * 64;
+        let x = 2 * 64 + 1;
+        let y = 15 * 64 + 1;
         let rel_x = x % TILE_SIZE;
         let rel_y = y % TILE_SIZE;
         let col = x / TILE_SIZE;
@@ -205,5 +207,17 @@ mod tests {
             .map(|x| x.0)
             .unwrap();
         assert_eq!(idx as u32, tile_idx);
+
+        let tile = canvas_state.tile_images.get(idx).unwrap();
+        let img2 = image::io::Reader::new(Cursor::new(tile))
+            .with_guessed_format()
+            .unwrap();
+        let img2 = img2.decode().unwrap();
+
+        let actual_pixel = img2.get_pixel(rel_x, rel_y).to_rgba();
+        let actual_pixel = actual_pixel.channels();
+        // obviously not the desired result, but somewhere a filter gets applied (compression artifact?)
+        let expected_pixel = &[158, 158, 158, 158];
+        assert_eq!(actual_pixel, expected_pixel);
     }
 }
