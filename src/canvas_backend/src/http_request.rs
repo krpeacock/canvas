@@ -23,4 +23,5 @@ pub struct HttpResponse {
     pub headers: Vec<HeaderField>,
     #[serde(with = "serde_bytes")]
     pub body: Vec<u8>,
+    // pub streaming_strategy: Option<StreamingStrategy>,
 }

@@ -30,11 +30,12 @@ pub struct Color {
 }
 
 #[query]
-pub fn http_request(http_request: HttpRequest) -> HttpResponse {
+pub fn http_request(request: HttpRequest) -> HttpResponse {
     HttpResponse {
         status_code: 200,
         headers: vec![],
-        body: http_request.body.to_vec(),
+        body: request.body.to_vec(),
+        // streaming_strategy: None,
     }
 }
 
