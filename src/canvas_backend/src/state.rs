@@ -195,7 +195,7 @@ mod tests {
             r: 255,
             g: 255,
             b: 255,
-            a: 255,
+            a: 100,
         };
         canvas_state.update_pixel(tile_idx, pos, color);
 
