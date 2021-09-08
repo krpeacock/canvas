@@ -78,7 +78,10 @@ pub fn http_request(request: HttpRequest) -> HttpResponse {
 fn update_pixel(tile_idx: u32, pos: Position, color: Color) {
     let canvas = storage::get_mut::<CanvasState>();
     let edits = storage::get_mut::<EditsState>();
-    if edits.register_edit(ic_cdk::caller(), ic_cdk::api::time()).is_ok() {
+    if edits
+        .register_edit(ic_cdk::caller(), ic_cdk::api::time())
+        .is_ok()
+    {
         canvas.update_pixel(tile_idx, pos, color);
     }
 }

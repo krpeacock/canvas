@@ -21,14 +21,31 @@ impl CanvasState {
     pub fn new() -> Self {
         let raw_tiles = (0..NO_TILES)
             .map(|_i| RgbaImage::new(TILE_SIZE, TILE_SIZE))
+            .collect::<Vec<_>>();
+
+        let tile_images = raw_tiles
+            .iter()
+            .map(|t| {
+                let dyn_image = DynamicImage::ImageRgba8(t.clone());
+                let mut bytes = vec![];
+                dyn_image
+                    .write_to(&mut bytes, image::ImageOutputFormat::Png)
+                    .expect("Could not encode tile as PNG!");
+                bytes
+            })
             .collect();
+
+        let raw_overview =
+            DynamicImage::ImageRgba8(RgbaImage::new(OVERVIEW_IMAGE_SIZE, OVERVIEW_IMAGE_SIZE));
+
+        let mut overview_image = vec![];
+        raw_overview
+            .write_to(&mut overview_image, image::ImageOutputFormat::Png)
+            .expect("Could not encode overview as PNG!");
         Self {
-            overview_image: Default::default(),
-            tile_images: Default::default(),
-            raw_overview: DynamicImage::ImageRgba8(RgbaImage::new(
-                OVERVIEW_IMAGE_SIZE,
-                OVERVIEW_IMAGE_SIZE,
-            )),
+            overview_image,
+            tile_images,
+            raw_overview,
             raw_tiles,
         }
     }
@@ -151,5 +168,42 @@ mod tests {
                 now.add(Duration::from_secs(36)).as_nanos() as u64
             )
             .is_ok());
+    }
+
+    #[test]
+    fn update_pixel_changes_tile() {
+        let mut canvas_state = CanvasState::default();
+
+        let x = 2 * 64;
+        let y = 15 * 64;
+        let rel_x = x % TILE_SIZE;
+        let rel_y = y % TILE_SIZE;
+        let col = x / TILE_SIZE;
+        let row = y / TILE_SIZE;
+        let tile_idx = row * ROW_LENGTH + col;
+
+        let skipped = canvas_state.tile_images.iter().skip(1);
+        let mut pairs = canvas_state.tile_images.iter().zip(skipped);
+        assert!(pairs.all(|(a, b)| a == b));
+
+        let first_tile = canvas_state.tile_images.first().unwrap().clone();
+
+        let pos = Position { x: rel_x, y: rel_y };
+        let color = Color {
+            r: 255,
+            g: 255,
+            b: 255,
+            a: 255,
+        };
+        canvas_state.update_pixel(tile_idx, pos, color);
+
+        let idx = canvas_state
+            .tile_images
+            .iter()
+            .enumerate()
+            .find(|(_, tile)| !(*tile).eq(&first_tile))
+            .map(|x| x.0)
+            .unwrap();
+        assert_eq!(idx as u32, tile_idx);
     }
 }
