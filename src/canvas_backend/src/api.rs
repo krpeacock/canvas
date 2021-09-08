@@ -5,7 +5,7 @@ use ic_cdk::{
 use ic_cdk_macros::*;
 
 use crate::{
-    http_request::{self, HttpRequest, HttpResponse},
+    http_request::{HttpRequest, HttpResponse},
     state::CanvasState,
 };
 
@@ -35,7 +35,6 @@ pub fn http_request(request: HttpRequest) -> HttpResponse {
         status_code: 200,
         headers: vec![],
         body: request.body.to_vec(),
-        // streaming_strategy: None,
     }
 }
 
