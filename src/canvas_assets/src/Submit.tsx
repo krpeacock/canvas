@@ -12,21 +12,16 @@ import {
   Text,
 } from "@adobe/react-spectrum";
 import React, { useEffect } from "react";
+import { useContext } from "react";
 import { canisterId } from "../../declarations/canvas_backend";
 import {
   Color,
   Position,
 } from "../../declarations/canvas_backend/canvas_backend.did";
-import { useAuthClient } from "./hooks";
+import { AppContext } from "./App";
 
-interface Props {
-  position?: Position;
-  color?: Color;
-}
-
-function Submit(props: Props) {
-  const { position, color } = props;
-  const { actor } = useAuthClient();
+function Submit() {
+  const { position, color, actor } = useContext(AppContext);
   const submit = () => {
     if (!position || !color) {
       throw new Error("Requires a position and color");

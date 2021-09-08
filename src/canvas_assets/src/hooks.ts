@@ -15,23 +15,19 @@ export function useAuthClient(props?: UseAuthClientProps) {
   );
 
   type Provider = "II" | "Plug";
-  const login = async (provider: Provider = "II") => {
-    const hasAllowed = await (window as any).ic.plug.requestConnect();
-
-    // Whitelist
-    const whitelist = [canisterId];
-
-    // Make the request
-    const isConnected = await (window as any).ic.plug.requestConnect({
-      whitelist,
-    });
-    const identity = await (window as any).ic?.plug?.agent._identity;
-    initActor(identity);
-
-    if (hasAllowed) {
-      console.log("Plug wallet is connected");
-    }
+  const login = async (provider: Provider) => {
     if (provider === "Plug") {
+      const hasAllowed = await (window as any).ic.plug.requestConnect();
+
+      // Whitelist
+      const whitelist = [canisterId];
+
+      // Make the request
+      const isConnected = await (window as any).ic.plug.requestConnect({
+        whitelist,
+      });
+      const identity = await (window as any).ic?.plug?.agent._identity;
+      initActor(identity);
     } else {
       authClient?.login({
         identityProvider: process.env.II_URL,

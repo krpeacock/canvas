@@ -29,7 +29,7 @@ function LoginSection(props: Props) {
           primaryActionLabel="Internet Identity"
           secondaryActionLabel="Log in with Plug"
           cancelLabel="Cancel"
-          onPrimaryAction={login}
+          onPrimaryAction={() => login("II")}
           onSecondaryAction={() => login("Plug")}
         >
           You are running low on disk space. Delete unnecessary files to free up

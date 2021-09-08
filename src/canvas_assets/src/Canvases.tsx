@@ -4,6 +4,8 @@ import Draggable from "react-draggable";
 import assert from "assert";
 import { ColorResult, SketchPicker } from "react-color";
 import { Flex } from "@adobe/react-spectrum";
+import { useContext } from "react";
+import { AppContext } from "./App";
 
 const DragArea = styled.section<{ tileSize: string }>`
   --tileSize: ${(props) => props.tileSize};
@@ -110,17 +112,12 @@ const SubView = styled.section`
 interface Props {}
 function Canvases(props: Props) {
   const {} = props;
-  const [position, setPosition] = useState({ x: 0, y: 0 });
   const [totalSize, setTotalSize] = useState(0);
   const [canvasSize, setCanvasSize] = useState(100);
   const [canvas2Scale, setCanvas2Scale] = useState(1);
-  const [color, setColor] = useState<ColorResult["rgb"]>({
-    r: 34,
-    g: 25,
-    b: 77,
-    a: 100,
-  });
   const imgRef = createRef<HTMLImageElement>();
+
+  const { position, setPosition, color, setColor } = useContext(AppContext);
 
   useLayoutEffect(() => {
     if (window.innerWidth < 600) {
@@ -158,7 +155,7 @@ function Canvases(props: Props) {
     totalSize;
     canvasSize;
 
-    setPosition({ y, x });
+    setPosition?.({ y, x });
   }
 
   function handlePixel(e: any) {
@@ -264,7 +261,7 @@ function Canvases(props: Props) {
           <SketchPicker
             color={color}
             onChange={(color) => {
-              setColor(color.rgb);
+              setColor?.({ ...color.rgb, a: color.rgb.a ?? 1 });
             }}
           ></SketchPicker>
         </div>

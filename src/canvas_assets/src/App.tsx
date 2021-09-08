@@ -4,10 +4,17 @@ import Canvases from "./Canvases";
 import { createContext } from "react";
 import { AuthClient } from "@dfinity/auth-client";
 import { ActorSubclass } from "@dfinity/agent";
-import { _SERVICE } from "../../declarations/canvas_backend/canvas_backend.did";
+import {
+  Color,
+  Position,
+  _SERVICE,
+} from "../../declarations/canvas_backend/canvas_backend.did";
 import { useAuthClient } from "./hooks";
 import Logo from "./Logo";
 import LoginSection from "./LoginSection";
+import { useState } from "react";
+import { ColorResult } from "react-color";
+import Submit from "./Submit";
 
 interface Props {}
 
@@ -19,9 +26,20 @@ export const AppContext = React.createContext<{
   login: () => void;
   logout: () => void;
   actor?: ActorSubclass<_SERVICE>;
+  position: Position;
+  setPosition?: React.Dispatch<React.SetStateAction<Position>>;
+  color: Color;
+  setColor?: React.Dispatch<React.SetStateAction<Color>>;
 }>({
   login: () => {},
   logout: () => {},
+  position: { x: 0, y: 0 },
+  color: {
+    r: 34,
+    g: 25,
+    b: 77,
+    a: 100,
+  },
 });
 
 function App(props: Props) {
@@ -34,6 +52,13 @@ function App(props: Props) {
     logout,
     actor,
   } = useAuthClient();
+  const [position, setPosition] = useState<Position>({ x: 0, y: 0 });
+  const [color, setColor] = useState<Color>({
+    r: 34,
+    g: 25,
+    b: 77,
+    a: 100,
+  });
   console.log(actor);
   return (
     <Provider theme={defaultTheme}>
@@ -46,6 +71,10 @@ function App(props: Props) {
           login,
           logout,
           actor,
+          position,
+          setPosition,
+          color,
+          setColor,
         }}
       >
         <Header>
@@ -75,7 +104,7 @@ function App(props: Props) {
               <Canvases />
             </Flex>
           </Flex>
-          {/* <Submit ctx={ctx} latest={latest} isModified={isModified} /> */}
+          <Submit />
         </main>
       </AppContext.Provider>
     </Provider>
