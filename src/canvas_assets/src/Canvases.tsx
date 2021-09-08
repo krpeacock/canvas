@@ -3,10 +3,11 @@ import styled from "styled-components";
 import Draggable from "react-draggable";
 import assert from "assert";
 import { ColorResult, SketchPicker } from "react-color";
-import { Flex } from "@adobe/react-spectrum";
+import { Flex, Heading, View, Text } from "@adobe/react-spectrum";
 import { useContext } from "react";
 import { AppContext } from "./App";
-import { Position, Focus } from './tiles';
+import { Position, Focus } from "./tiles";
+import Submit from "./Submit";
 
 const DragArea = styled.section<{ tileSize: string }>`
   --tileSize: ${(props) => props.tileSize};
@@ -91,6 +92,24 @@ const SubView = styled.section`
       background: rgba(255, 255, 255, 0.25);
     }
     border-radius: 100%;
+    animation: pulse 1300ms infinite step-end;
+    @keyframes pulse {
+      0% {
+        background-color: rgba(237, 30, 121, 0.15);
+        box-shadow: 0 0 3px rgba(237, 30, 121, 1);
+        border: 1px solid rgba(237, 30, 121, 1);
+      }
+      50% {
+        background-color: rgba(82, 39, 133, 0.15);
+        box-shadow: 0 0 10px rgba(82, 39, 133, 1);
+        border: 1px solid rgba(82, 39, 133, 1);
+      }
+      100% {
+        background-color: rgba(237, 30, 121, 0.15);
+        box-shadow: 0 0 3px rgba(237, 30, 121, 1);
+        border: 1px solid rgba(237, 30, 121, 1);
+      }
+    }
 
     #pixel {
       width: 4px;
@@ -100,25 +119,35 @@ const SubView = styled.section`
         height: 8px;
       }
     }
-    .pickerContainer {
+    #pickerContainer {
       position: relative;
       @media (min-width: 600px) {
         top: 4px;
         left: 12px;
       }
     }
+    .sketch-picker {
+      margin-left: 1rem;
+    }
   }
 `;
 
-interface Props { }
+interface Props {}
 function Canvases(props: Props) {
-  const { } = props;
+  const {} = props;
   const [totalSize, setTotalSize] = useState(0);
   const [canvasSize, setCanvasSize] = useState(100);
   const [canvas2Scale, setCanvas2Scale] = useState(1);
   const imgRef = createRef<HTMLImageElement>();
 
-  const { position, setPosition, color, setColor } = useContext(AppContext);
+  const {
+    position,
+    setPosition,
+    absolutePosition,
+    setAbsolutePosition,
+    color,
+    setColor,
+  } = useContext(AppContext);
 
   useLayoutEffect(() => {
     if (window.innerWidth < 600) {
@@ -160,7 +189,9 @@ function Canvases(props: Props) {
   }
 
   function handleClick(e: React.MouseEvent) {
-    let focus = new Focus(new Position(e.nativeEvent.offsetX, e.nativeEvent.offsetY));
+    let focus = new Focus(
+      new Position(e.nativeEvent.offsetX, e.nativeEvent.offsetY)
+    );
     // const selection = document.querySelector("#selection") as HTMLDivElement;
     // assert(selection);
 
@@ -187,9 +218,10 @@ function Canvases(props: Props) {
       .split(", ")
       .map((substr) => Number(substr.split("px")[0]));
 
-    const absoluteX = x / canvas2Scale / 4 + position.x;
-    const absoluteY = y / canvas2Scale / 4 + position.y;
+    const absoluteX = Math.ceil(x / canvas2Scale / 4 + position.x);
+    const absoluteY = Math.ceil(y / canvas2Scale / 4 + position.y);
     console.log("pixel coordinates:", `${absoluteX}, ${absoluteY}`);
+    setAbsolutePosition?.({ x: absoluteX, y: absoluteY });
   }
 
   useEffect(() => {
@@ -213,9 +245,6 @@ function Canvases(props: Props) {
       );
     }
   }, [position]);
-
-  const clickCapture = () => { };
-
   return (
     <Wrapper>
       <div id="fullsize">
@@ -238,8 +267,9 @@ function Canvases(props: Props) {
           grid={[4 * canvas2Scale, 4 * canvas2Scale]}
           position={{
             x: position.x,
-            y: position.y
+            y: position.y,
           }}
+          defaultPosition={{ x: canvasSize / 2, y: canvasSize / 2 }}
           bounds={{
             left: 0,
             top: 0,
@@ -257,16 +287,16 @@ function Canvases(props: Props) {
             id="canvas2"
             width={256 * canvas2Scale}
             height={256 * canvas2Scale}
-            onClick={clickCapture}
           />
           <Draggable
             grid={[4 * canvas2Scale, 4 * canvas2Scale]}
             bounds={{
               left: 0,
               top: 0,
-              bottom: 256 * canvas2Scale - 8,
-              right: 256 * canvas2Scale - 8,
+              bottom: 256 * canvas2Scale - 6,
+              right: 256 * canvas2Scale - 6,
             }}
+            defaultPosition={{ x: 256 * canvas2Scale, y: 256 * canvas2Scale }}
             onStop={handlePixel}
           >
             <button id="pixelWrapper" type="button">
@@ -281,14 +311,29 @@ function Canvases(props: Props) {
             </button>
           </Draggable>
         </SubView>
-        <div className="pickerContainer">
+        <View
+          id="pickerContainer"
+          backgroundColor="static-white"
+          padding="1rem"
+        >
+          <Heading level={3}>
+            <span style={{ color: "black" }}>Coordinates</span>
+          </Heading>
+          <p style={{ color: "black" }} key={position.x + position.y}>
+            <code>{JSON.stringify(absolutePosition)}</code>
+          </p>
           <SketchPicker
             color={color}
             onChange={(color) => {
               setColor?.({ ...color.rgb, a: color.rgb.a ?? 1 });
             }}
           ></SketchPicker>
-        </div>
+          <p style={{ color: "black", maxWidth: "400px" }}>
+            Use the Color Selector to choose the color for your pixel, and drag
+            the cursor to your chosen location. Press Submit When you are ready!
+          </p>
+          <Submit/>
+        </View>
       </Flex>
     </Wrapper>
   );

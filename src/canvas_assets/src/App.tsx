@@ -17,7 +17,6 @@ import { useAuthClient } from "./hooks";
 import Logo from "./Logo";
 import LoginSection from "./LoginSection";
 import { useState } from "react";
-import Submit from "./Submit";
 import { Toaster } from "react-hot-toast";
 import type { Provider } from "./hooks";
 
@@ -33,12 +32,15 @@ export const AppContext = React.createContext<{
   actor?: ActorSubclass<_SERVICE>;
   position: Position;
   setPosition?: React.Dispatch<React.SetStateAction<Position>>;
+  absolutePosition: Position;
+  setAbsolutePosition?: React.Dispatch<React.SetStateAction<Position>>;
   color: Color;
   setColor?: React.Dispatch<React.SetStateAction<Color>>;
 }>({
   login: async (provider: Provider) => {},
   logout: () => {},
   position: { x: 0, y: 0 },
+  absolutePosition: { x: 0, y: 0 },
   color: {
     r: 34,
     g: 25,
@@ -58,6 +60,10 @@ function App(props: Props) {
     actor,
   } = useAuthClient();
   const [position, setPosition] = useState<Position>({ x: 0, y: 0 });
+  const [absolutePosition, setAbsolutePosition] = useState<Position>({
+    x: 0,
+    y: 0,
+  });
   const [color, setColor] = useState<Color>({
     r: 34,
     g: 25,
@@ -85,6 +91,8 @@ function App(props: Props) {
             actor,
             position,
             setPosition,
+            absolutePosition,
+            setAbsolutePosition,
             color,
             setColor,
           }}
@@ -120,7 +128,6 @@ function App(props: Props) {
                 <Canvases />
               </Flex>
             </Flex>
-            <Submit />
           </main>
         </AppContext.Provider>
       </SpectrumProvider>

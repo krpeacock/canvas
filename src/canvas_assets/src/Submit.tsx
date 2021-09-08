@@ -24,9 +24,9 @@ const Box = styled.div<{ background: string }>`
 
 function Submit() {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { position, color, actor } = useContext(AppContext);
+  const { absolutePosition, color, actor } = useContext(AppContext);
   const submit = async () => {
-    if (!position || !color || !actor) {
+    if (!absolutePosition || !color || !actor) {
       throw new Error("Requires a position and color");
     }
 
@@ -34,7 +34,7 @@ function Submit() {
     toast("Submitting your pixel");
     // TODO: calculate the tile and relative position from the coordinates
     actor
-      .update_pixel(0, position, color)
+      .update_pixel(0, absolutePosition, color)
       .then(() => {
         toast.success("Submitted! You can play again in 30 seconds");
       })
@@ -50,12 +50,9 @@ function Submit() {
 
   return (
     <DialogTrigger>
-      <View padding="size-300">
-        <Heading level={2}>Ready to go?</Heading>
-        <Button variant="cta" type="submit">
-          Submit
-        </Button>
-      </View>
+      <Button variant="cta" type="submit">
+        Submit
+      </Button>
       {(close) => {
         return (
           <AlertDialog
@@ -70,7 +67,7 @@ function Submit() {
               <Divider></Divider>
               <dl>
                 <dt>Pixel:</dt>
-                <dd>{`{ x: ${position.x}, y: ${position.y} }`}</dd>
+                <dd>{`{ x: ${absolutePosition.x}, y: ${absolutePosition.y} }`}</dd>
                 <dt>Color</dt>
                 <dd>
                   <Flex direction="row">
