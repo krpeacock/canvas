@@ -35,7 +35,6 @@ pub fn http_request(http_request: HttpRequest) -> HttpResponse {
         status_code: 200,
         headers: vec![],
         body: http_request.body.to_vec(),
-        streaming_strategy: None,
     }
 }
 

@@ -22,7 +22,6 @@ impl CanvasState {
         }
     }
 }
-
 impl Default for CanvasState {
     fn default() -> Self {
         Self::new()

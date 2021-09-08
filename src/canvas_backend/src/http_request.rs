@@ -1,4 +1,4 @@
-use ic_cdk::export::candid::{parser::value::IDLValue, CandidType, Deserialize};
+use ic_cdk::export::candid::{CandidType, Deserialize};
 use std::fmt::Debug;
 
 #[derive(Debug, Clone, Copy, Ord, PartialOrd, Eq, PartialEq)]
@@ -18,28 +18,9 @@ pub struct HttpRequest {
 }
 
 #[derive(CandidType, Deserialize)]
-pub struct CallbackStrategy {
-    pub callback: IDLValue,
-    pub token: IDLValue,
-}
-
-#[derive(CandidType, Deserialize)]
-pub enum StreamingStrategy {
-    Callback(CallbackStrategy),
-}
-
-#[derive(CandidType, Deserialize)]
 pub struct HttpResponse {
     pub status_code: u16,
     pub headers: Vec<HeaderField>,
     #[serde(with = "serde_bytes")]
     pub body: Vec<u8>,
-    pub streaming_strategy: Option<StreamingStrategy>,
-}
-
-#[derive(CandidType, Deserialize)]
-pub struct StreamingCallbackHttpResponse {
-    #[serde(with = "serde_bytes")]
-    pub body: Vec<u8>,
-    pub token: Option<IDLValue>,
 }
