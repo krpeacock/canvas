@@ -10,23 +10,25 @@ use crate::{
 };
 
 /// All images have square shape and the side length must be a power of 2.
-pub const OVERVIEW_IMAGE_SIZE: u32 = 512;
 pub const IMAGE_SIZE: u32 = 1024;
 pub const TILE_SIZE: u32 = 64;
-pub const NO_TILES: u32 = (IMAGE_SIZE / TILE_SIZE) * (IMAGE_SIZE / TILE_SIZE);
+pub const ROW_LENGTH: u32 = IMAGE_SIZE / TILE_SIZE;
+pub const NO_TILES: u32 = ROW_LENGTH;
+pub const OVERVIEW_IMAGE_SIZE: u32 = 512;
+pub const OVERVIEW_TILE_SIZE: u32 = OVERVIEW_IMAGE_SIZE / (ROW_LENGTH);
 
 #[derive(Clone, Debug, Default, CandidType, Deserialize)]
 pub struct Position {
-    x: u32,
-    y: u32,
+    pub x: u32,
+    pub y: u32,
 }
 
 #[derive(Clone, Debug, Default, CandidType, Deserialize)]
 pub struct Color {
-    r: u8,
-    g: u8,
-    b: u8,
-    a: u8,
+    pub r: u8,
+    pub g: u8,
+    pub b: u8,
+    pub a: u8,
 }
 
 #[query]
