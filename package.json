@@ -54,6 +54,7 @@
     "react-color": "^2.19.3",
     "react-dom": "^16.8.0",
     "react-draggable": "^4.4.4",
+    "react-hot-toast": "^2.1.1",
     "style-loader": "^3.2.1",
     "styled-components": "^5.3.1",
     "ts-loader": "^9.2.5",

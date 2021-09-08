@@ -18,6 +18,7 @@ import Logo from "./Logo";
 import LoginSection from "./LoginSection";
 import { useState } from "react";
 import Submit from "./Submit";
+import { Toaster } from "react-hot-toast";
 import type { Provider } from "./hooks";
 
 interface Props {}
@@ -65,53 +66,65 @@ function App(props: Props) {
   });
   console.log(actor);
   return (
-    <SpectrumProvider theme={defaultTheme}>
-      <AppContext.Provider
-        value={{
-          authClient,
-          setAuthClient,
-          isAuthenticated,
-          setIsAuthenticated,
-          login,
-          logout,
-          actor,
-          position,
-          setPosition,
-          color,
-          setColor,
+    <>
+      <Toaster
+        toastOptions={{
+          duration: 5000,
+          position: "bottom-center",
         }}
-      >
-        <Header>
-          <Flex direction="row" justifyContent="space-between" margin="0 1rem">
-            <Flex direction="row" gap="1rem" width={"auto"}>
-              <Logo />
-              <h1 style={{ whiteSpace: "nowrap" }}>IC Canvas</h1>
+      />
+      <SpectrumProvider theme={defaultTheme}>
+        <AppContext.Provider
+          value={{
+            authClient,
+            setAuthClient,
+            isAuthenticated,
+            setIsAuthenticated,
+            login,
+            logout,
+            actor,
+            position,
+            setPosition,
+            color,
+            setColor,
+          }}
+        >
+          <Header>
+            <Flex
+              direction="row"
+              justifyContent="space-between"
+              margin="0 1rem"
+            >
+              <Flex direction="row" gap="1rem" width={"auto"}>
+                <Logo />
+                <h1 style={{ whiteSpace: "nowrap" }}>IC Canvas</h1>
+              </Flex>
+              <LoginSection />
             </Flex>
-            <LoginSection />
-          </Flex>
-        </Header>
-        <main>
-          <Flex
-            direction="column"
-            justifyContent="center"
-            alignItems="start"
-            marginBottom="4rem"
-            margin="4px"
-          >
+          </Header>
+          <main>
             <Flex
               direction="column"
-              wrap="wrap"
-              justifyContent="start"
-              alignItems="end"
-              gap="3rem"
+              justifyContent="center"
+              alignItems="start"
+              marginBottom="4rem"
+              margin="4px"
             >
-              <Canvases />
+              <Flex
+                direction="column"
+                wrap="wrap"
+                justifyContent="start"
+                alignItems="end"
+                gap="3rem"
+              >
+                <Canvases />
+              </Flex>
             </Flex>
-          </Flex>
-          <Submit />
-        </main>
-      </AppContext.Provider>
-    </SpectrumProvider>
+            <Submit />
+          </main>
+        </AppContext.Provider>
+      </SpectrumProvider>
+    </>
   );
 }
 

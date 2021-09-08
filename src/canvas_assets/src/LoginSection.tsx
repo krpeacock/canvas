@@ -21,7 +21,7 @@ function LoginSection(props: Props) {
       <DialogTrigger>
         <ActionButton>
           <RealTimeCustomerProfile />
-          <Text>Login</Text>
+          <Text>{isAuthenticated ? "You are logged in!" : "Log in"}</Text>
         </ActionButton>
         <AlertDialog
           title="Log in to play!"
@@ -32,8 +32,8 @@ function LoginSection(props: Props) {
           onPrimaryAction={() => login("II")}
           onSecondaryAction={() => login("Plug")}
         >
-          You are running low on disk space. Delete unnecessary files to free up
-          space.
+          You can log in using Internet Identity, or you can use your Plug
+          Wallet, if you are using desktop and have the extension installed!
         </AlertDialog>
       </DialogTrigger>
     </Flex>
