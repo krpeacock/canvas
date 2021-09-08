@@ -10,15 +10,12 @@
   ],
   "scripts": {
     "build": "webpack",
-    "prebuild": "npm run generate:types",
+    "prebuild": "npm run copy:types",
     "start": "webpack serve --mode development --env development",
-    "prestart": "npm run generate:types",
-    "generate:types": "dfx generate canvas"
+    "prestart": "npm run copy:types",
+    "copy:types": "rsync -avr .dfx/$(echo ${DFX_NETWORK:-'**'})/canisters/** --exclude='assets/' --exclude='idl/' --exclude='*.wasm' --delete src/declarations"
   },
   "devDependencies": {
-    "@dfinity/agent": "0.9.3",
-    "@dfinity/candid": "0.9.3",
-    "@dfinity/principal": "0.9.3",
     "@types/react-color": "^3.0.5",
     "@types/styled-components": "^5.1.14",
     "assert": "2.0.0",
@@ -42,8 +39,13 @@
   ],
   "dependencies": {
     "@adobe/react-spectrum": "^3.13.0",
+    "@dfinity/agent": "0.10.0",
+    "@dfinity/auth-client": "^0.10.0",
+    "@dfinity/candid": "0.10.0",
+    "@dfinity/principal": "0.10.0",
     "@react-spectrum/color": "^3.0.0-beta.3",
     "@react-stately/color": "^3.0.0-beta.3",
+    "@spectrum-icons/workflow": "^3.2.1",
     "@types/react": "^16.8.0",
     "@types/react-dom": "^16.8.0",
     "css-loader": "^6.2.0",

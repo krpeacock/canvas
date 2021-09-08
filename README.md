@@ -12,27 +12,31 @@ dfx help
 dfx config --help
 ```
 
-## Running the project locally
+## Setting up for local development
 
-If you want to test your project locally, you can use the following commands:
+To get started, start a local dfx development environment in this directory with the following steps:
 
 ```bash
-# Starts the replica, running in the background
+cd auth-client-demo/
 dfx start --background
-
-# Deploys your canisters to the replica and generates your candid interface
 dfx deploy
 ```
 
-Once the job completes, your application will be available at `http://localhost:8000?canisterId={asset_canister_id}`.
+### Internet Identity Setup
 
-Additionally, if you are making frontend changes, you can start a development server with
+Then, make sure you have the [Internet Identity](https://github.com/dfinity/internet-identity) repo cloned locally. 
 
 ```bash
-npm start
+cd ../internet-identity
+II_ENV=development dfx deploy --no-wallet --argument '(null)'
 ```
 
-Which will start a server at `http://localhost:8080`, proxying API requests to the replica at port 8000.
+Copy the canister ID fom the Internet Identity canister, and paste it into `webpack.config.js` in this project on the `LOCAL_II_CANISTER` variable on line `8`.
+
+Finally, cd back into the auth-client-demo directory and start the development server with `npm start`.
+
+You can now access the app at `http://localhost:8080`.
+
 
 ### Note on frontend environment variables
 

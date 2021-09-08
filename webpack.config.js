@@ -93,7 +93,10 @@ module.exports = {
     }),
     new webpack.EnvironmentPlugin({
       NODE_ENV: "development",
-      CANVAS_CANISTER_ID: canisters["canvas"],
+      CANVAS_BACKEND_CANISTER_ID: canisters["canvas_backend"],
+      II_URL: isDevelopment
+        ? "http://localhost:8000?canisterId=qsgjb-riaaa-aaaaa-aaaga-cai#authorize"
+        : "https://identity.ic0.app/#authorize",
     }),
     new webpack.ProvidePlugin({
       Buffer: [require.resolve("buffer/"), "Buffer"],

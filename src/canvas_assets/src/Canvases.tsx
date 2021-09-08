@@ -1,38 +1,9 @@
-import React, {
-  createRef,
-  MouseEventHandler,
-  useEffect,
-  useLayoutEffect,
-  useState,
-} from "react";
+import React, { createRef, useEffect, useLayoutEffect, useState } from "react";
 import styled from "styled-components";
 import Draggable from "react-draggable";
 import assert from "assert";
-import { Color, ColorResult, RGBColor, SketchPicker } from "react-color";
-
-const StyledPicture = styled.picture`
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  position: static;
-  /* height: 300px;
-  width: 300px;
-  @media (min-width: 767px) {
-    height: 500px;
-    width: 500px;
-  }
-  @media (min-width: 1080px) {
-    height: 0px;
-    width: 0px;
-  } */
-
-  img {
-    display: flex;
-    margin: 0;
-    max-width: calc(100vw - 32px);
-    max-height: calc(100vw - 32px);
-  }
-`;
+import { ColorResult, SketchPicker } from "react-color";
+import { Flex } from "@adobe/react-spectrum";
 
 const DragArea = styled.section<{ tileSize: string }>`
   --tileSize: ${(props) => props.tileSize};
@@ -51,10 +22,28 @@ const DragArea = styled.section<{ tileSize: string }>`
     height: var(--tileSize);
     width: var(--tileSize);
     background: rgb(237, 30, 121);
+    @keyframes glowing {
+      0% {
+        background-color: rgb(237, 30, 121);
+        box-shadow: 0 0 3px rgb(237, 30, 121);
+      }
+      50% {
+        background-color: rgb(82, 39, 133);
+        box-shadow: 0 0 10px rgb(82, 39, 133);
+      }
+      100% {
+        background-color: rgb(237, 30, 121);
+        box-shadow: 0 0 3px rgb(237, 30, 121);
+      }
+    }
+    animation: glowing 1300ms infinite step-end;
   }
 `;
 
 const Wrapper = styled.div`
+  display: flex;
+  flex-flow: row wrap;
+  gap: 1rem;
   canvas {
     /* height: var(--canvas-size);
     width: var(--canvas-size); */
@@ -62,6 +51,7 @@ const Wrapper = styled.div`
   }
 
   .dragarea {
+    width: auto;
     max-height: calc(100vw - 2rem);
     max-width: calc(100vw - 2rem);
     overflow: scroll;
@@ -82,7 +72,7 @@ const Wrapper = styled.div`
 `;
 
 const SubView = styled.section`
-  margin: 1rem 0;
+  margin: 0;
   max-width: calc(100vw - 3rem);
   position: relative;
   canvas {
@@ -118,11 +108,10 @@ const SubView = styled.section`
 `;
 
 interface Props {}
-function PictureDrag(props: Props) {
+function Canvases(props: Props) {
   const {} = props;
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [totalSize, setTotalSize] = useState(0);
-  const [interval, saveInterval] = useState(0);
   const [canvasSize, setCanvasSize] = useState(100);
   const [canvas2Scale, setCanvas2Scale] = useState(1);
   const [color, setColor] = useState<ColorResult["rgb"]>({
@@ -133,22 +122,6 @@ function PictureDrag(props: Props) {
   });
   const imgRef = createRef<HTMLImageElement>();
 
-  const blink = () => {
-    const dragBox = document.getElementById("selection");
-    const current = dragBox?.style.background;
-    const next =
-      current === "rgb(237, 30, 121)"
-        ? "rgb(82, 39, 133)"
-        : "rgb(237, 30, 121)";
-    dragBox?.style.setProperty("background", next);
-  };
-
-  const setupInterval = () => {
-    const interval = window.setInterval(blink, 600);
-    saveInterval(interval);
-    return interval;
-  };
-
   useLayoutEffect(() => {
     if (window.innerWidth < 600) {
       setCanvas2Scale(1);
@@ -156,11 +129,6 @@ function PictureDrag(props: Props) {
       setCanvas2Scale(2);
     }
   }, [window.innerWidth]);
-
-  useEffect(() => {
-    const i = setupInterval();
-    return clearInterval(i);
-  }, []);
 
   function onImgLoad(e: any) {
     const fullsize = document.querySelector("#fullsize img") as
@@ -262,45 +230,47 @@ function PictureDrag(props: Props) {
           <div id="selection"></div>
         </Draggable>
       </DragArea>
-      <SubView>
-        <canvas
-          id="canvas2"
-          width={256 * canvas2Scale}
-          height={256 * canvas2Scale}
-          onClick={clickCapture}
-        />
-        <Draggable
-          grid={[4 * canvas2Scale, 4 * canvas2Scale]}
-          bounds={{
-            left: 0,
-            top: 0,
-            bottom: 256 * canvas2Scale - 8,
-            right: 256 * canvas2Scale - 8,
-          }}
-          onStop={handlePixel}
-        >
-          <button id="pixelWrapper" type="button">
-            <div
-              id="pixel"
-              style={{
-                background: color
-                  ? `rgba(${color.r},${color.g},${color.b},${color.a})`
-                  : "white",
-              }}
-            ></div>
-          </button>
-        </Draggable>
-      </SubView>
-      <div className="pickerContainer">
-        <SketchPicker
-          color={color}
-          onChange={(color) => {
-            setColor(color.rgb);
-          }}
-        ></SketchPicker>
-      </div>
+      <Flex wrap direction="row" gap="1rem">
+        <SubView>
+          <canvas
+            id="canvas2"
+            width={256 * canvas2Scale}
+            height={256 * canvas2Scale}
+            onClick={clickCapture}
+          />
+          <Draggable
+            grid={[4 * canvas2Scale, 4 * canvas2Scale]}
+            bounds={{
+              left: 0,
+              top: 0,
+              bottom: 256 * canvas2Scale - 8,
+              right: 256 * canvas2Scale - 8,
+            }}
+            onStop={handlePixel}
+          >
+            <button id="pixelWrapper" type="button">
+              <div
+                id="pixel"
+                style={{
+                  background: color
+                    ? `rgba(${color.r},${color.g},${color.b},${color.a})`
+                    : "white",
+                }}
+              ></div>
+            </button>
+          </Draggable>
+        </SubView>
+        <div className="pickerContainer">
+          <SketchPicker
+            color={color}
+            onChange={(color) => {
+              setColor(color.rgb);
+            }}
+          ></SketchPicker>
+        </div>
+      </Flex>
     </Wrapper>
   );
 }
 
-export default PictureDrag;
+export default Canvases;
