@@ -6,7 +6,7 @@ import { ColorResult, SketchPicker } from "react-color";
 import { Flex, Heading, View, Text } from "@adobe/react-spectrum";
 import { useContext } from "react";
 import { AppContext } from "./App";
-import { Position, Focus } from "./tiles";
+import { Position, Focus, FOCUS_SIZE } from "./tiles";
 import Submit from "./Submit";
 
 const DragArea = styled.section<{ tileSize: string }>`
@@ -190,22 +190,11 @@ function Canvases(props: Props) {
 
   function handleClick(e: React.MouseEvent) {
     let focus = new Focus(
-      new Position(e.nativeEvent.offsetX, e.nativeEvent.offsetY)
+      new Position(
+        e.nativeEvent.offsetX - FOCUS_SIZE / canvas2Scale,
+        e.nativeEvent.offsetY - FOCUS_SIZE / canvas2Scale
+      )
     );
-    // const selection = document.querySelector("#selection") as HTMLDivElement;
-    // assert(selection);
-
-    // const [x, y] = selection.style.transform
-    //   .slice(10, selection.style.transform.length - 1)
-    //   .split(", ")
-    //   .map((substr) => Number(substr.split("px")[0]));
-
-    // totalSize;
-    // canvasSize;
-    // console.log(e);
-
-    // console.log(`moving to ${e.nativeEvent.offsetX}, ${e.nativeEvent.offsetY}`);
-
     setPosition?.({ x: focus.position.x, y: focus.position.y });
   }
 
@@ -332,7 +321,7 @@ function Canvases(props: Props) {
             Use the Color Selector to choose the color for your pixel, and drag
             the cursor to your chosen location. Press Submit When you are ready!
           </p>
-          <Submit/>
+          <Submit />
         </View>
       </Flex>
     </Wrapper>
