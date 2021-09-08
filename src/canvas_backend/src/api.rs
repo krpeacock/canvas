@@ -85,6 +85,7 @@ fn update_pixel(tile_idx: u32, pos: Position, color: Color) {
 fn init() {
     let _canvas = storage::get_mut::<CanvasState>();
     let _edits = storage::get_mut::<EditsState>();
+    _edits.start().ok();
 }
 
 fn png_header_fields(body: &[u8]) -> Vec<HeaderField> {
