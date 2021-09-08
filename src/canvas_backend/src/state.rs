@@ -220,5 +220,20 @@ mod tests {
         let actual_pixel = actual_pixel.channels();
         let expected_pixel = &[255, 255, 255, 255];
         assert_eq!(actual_pixel, expected_pixel);
+
+        let ovw_x = col * OVERVIEW_TILE_SIZE;
+        let ovw_y = row * OVERVIEW_TILE_SIZE;
+
+        let ovw_image = canvas_state.overview_image;
+
+        let img2 = image::io::Reader::new(Cursor::new(ovw_image))
+            .with_guessed_format()
+            .unwrap();
+        let img2 = img2.decode().unwrap();
+
+        let actual_pixel = img2.get_pixel(ovw_x, ovw_y).to_rgba();
+        let actual_pixel = actual_pixel.channels();
+        let expected_pixel = &[43, 43, 43, 43];
+        assert_eq!(actual_pixel, expected_pixel);
     }
 }
