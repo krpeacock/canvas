@@ -185,6 +185,7 @@ dependencies = [
  "ic-cdk-macros",
  "image",
  "serde",
+ "serde_bytes",
 ]
 
 [[package]]

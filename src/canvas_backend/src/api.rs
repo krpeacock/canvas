@@ -4,7 +4,7 @@ use ic_cdk::export::{
 use ic_cdk::storage;
 use ic_cdk_macros::*;
 
-use crate::state::CanvasState;
+use crate::{http_request::{self, HttpRequest, HttpResponse}, state::CanvasState};
 
 /// All images have square shape and the side length must be a power of 2.
 pub const OVERVIEW_IMAGE_SIZE: u32 = 512;
@@ -27,8 +27,13 @@ pub struct Color {
 }
 
 #[query]
-fn http_request() {
-    // asdf
+fn http_request(http_request: HttpRequest) -> HttpResponse {
+    HttpResponse {
+        status_code: 200,
+        headers: vec![],
+        body: http_request.body.to_vec(),
+        streaming_strategy: None,
+    }
 }
 
 #[update]
