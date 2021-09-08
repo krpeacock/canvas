@@ -1,3 +1,5 @@
+import { canisterId } from "../../declarations/canvas_backend";
+
 const TILE_SIZE = 64;
 const FOCUS_SIZE = 128;
 const CANVAS_SIZE = 1024;
@@ -47,6 +49,9 @@ export class Focus {
             }
         }
         return tiles;
+    }
+    tiles_urls(): string[] {
+        return this.tiles().map((t) => `https://${canisterId}.raw.ic0.app//tile.${t}.png`)
     }
 }
 
