@@ -1,21 +1,10 @@
 {
   "canisters": {
-    "canvas": {
-      "main": "src/canvas/main.mo",
-      "type": "motoko"
-    },
-    "canvas_assets": {
-      "dependencies": [
-        "canvas"
-      ],
-      "frontend": {
-        "entrypoint": "src/canvas_assets/src/index.html"
-      },
-      "source": [
-        "src/canvas_assets/assets",
-        "dist/canvas_assets/"
-      ],
-      "type": "assets"
+    "canvas_backend": {
+      "build": "cargo build --target wasm32-unknown-unknown --package canvas_backend --release",
+      "type": "custom",
+      "candid": "src/canvas_backend/src/canvas_backend.did",
+      "wasm": "target/wasm32-unknown-unknown/release/canvas_backend.wasm"
     }
   },
   "defaults": {
