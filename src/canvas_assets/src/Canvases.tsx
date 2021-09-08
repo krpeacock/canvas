@@ -6,7 +6,7 @@ import { ColorResult, SketchPicker } from "react-color";
 import { Flex } from "@adobe/react-spectrum";
 import { useContext } from "react";
 import { AppContext } from "./App";
-import { Position, Focus } from './tiles';
+import { Position, Focus, FOCUS_SIZE } from './tiles';
 
 const DragArea = styled.section<{ tileSize: string }>`
   --tileSize: ${(props) => props.tileSize};
@@ -160,21 +160,7 @@ function Canvases(props: Props) {
   }
 
   function handleClick(e: React.MouseEvent) {
-    let focus = new Focus(new Position(e.nativeEvent.offsetX, e.nativeEvent.offsetY));
-    // const selection = document.querySelector("#selection") as HTMLDivElement;
-    // assert(selection);
-
-    // const [x, y] = selection.style.transform
-    //   .slice(10, selection.style.transform.length - 1)
-    //   .split(", ")
-    //   .map((substr) => Number(substr.split("px")[0]));
-
-    // totalSize;
-    // canvasSize;
-    // console.log(e);
-
-    // console.log(`moving to ${e.nativeEvent.offsetX}, ${e.nativeEvent.offsetY}`);
-
+    let focus = new Focus(new Position(e.nativeEvent.offsetX - FOCUS_SIZE / canvas2Scale, e.nativeEvent.offsetY - FOCUS_SIZE / canvas2Scale));
     setPosition?.({ x: focus.position.x, y: focus.position.y });
   }
 

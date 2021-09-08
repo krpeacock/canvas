@@ -1,10 +1,10 @@
 import { canisterId } from "../../declarations/canvas_backend";
 
-const TILE_SIZE = 64;
-const FOCUS_SIZE = 128;
-const CANVAS_SIZE = 1024;
-const PREVIEW_SIZE = 512;
-const PREVIEW_SCALE_RATIO = CANVAS_SIZE / PREVIEW_SIZE;
+export const TILE_SIZE = 64;
+export const FOCUS_SIZE = 64;
+export const CANVAS_SIZE = 1024;
+export const PREVIEW_SIZE = 512;
+export const PREVIEW_SCALE_RATIO = CANVAS_SIZE / PREVIEW_SIZE;
 
 export class Position {
     x: number;
@@ -24,8 +24,8 @@ export class Focus {
     position: Position;
     constructor(position: Position) {
         this.position = new Position(
-            Math.min(position.x, CANVAS_SIZE - FOCUS_SIZE),
-            Math.min(position.y, CANVAS_SIZE - FOCUS_SIZE),
+            Math.max(0, Math.min(position.x, CANVAS_SIZE - FOCUS_SIZE)),
+            Math.max(0, Math.min(position.y, CANVAS_SIZE - FOCUS_SIZE)),
         );
     }
 
