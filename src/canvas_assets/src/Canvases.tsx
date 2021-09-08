@@ -72,6 +72,10 @@ const Wrapper = styled.div`
     height: 1px;
     width: 1px;
     overflow: scroll;
+    img {
+      height: 1024px;
+      width: 1024px;
+    }
   }
 `;
 
@@ -134,9 +138,8 @@ const SubView = styled.section`
 
 interface Props {}
 function Canvases(props: Props) {
+  const canvasSize = 1024;
   const {} = props;
-  const [totalSize, setTotalSize] = useState(0);
-  const [canvasSize, setCanvasSize] = useState(100);
   const [canvas2Scale, setCanvas2Scale] = useState(1);
   const imgRef = createRef<HTMLImageElement>();
 
@@ -163,13 +166,8 @@ function Canvases(props: Props) {
       | undefined;
     if (fullsize) {
       const canvas = document.getElementById("canvas1") as HTMLCanvasElement;
-      canvas.width = fullsize.naturalWidth;
-      canvas.height = fullsize.naturalWidth;
       const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
-      const imgSize = e.target.getBoundingClientRect().width;
-      setCanvasSize(imgSize);
       ctx.drawImage(fullsize, 0, 0);
-      setTotalSize(fullsize.naturalWidth);
     }
   }
 
@@ -182,7 +180,6 @@ function Canvases(props: Props) {
       .split(", ")
       .map((substr) => Number(substr.split("px")[0]));
 
-    totalSize;
     canvasSize;
 
     setPosition?.({ y, x });
@@ -220,7 +217,6 @@ function Canvases(props: Props) {
     if (fullsize) {
       const canvas = document.getElementById("canvas2") as HTMLCanvasElement;
       const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
-      totalSize;
       ctx.drawImage(
         fullsize,
         position.x,
@@ -234,24 +230,33 @@ function Canvases(props: Props) {
       );
     }
   }, [position]);
+
+  const overviewImage =
+    process.env.NODE_ENV === "development"
+      ? `http://localhost:8000/overview.png?canisterId=${process.env.CANVAS_BACKEND_CANISTER_ID}`
+      : `https://${process.env.CANVAS_BACKEND_CANISTER_ID}.ic0.app/overview.png`;
+
   return (
     <Wrapper>
       <div id="fullsize">
         <img
-          src="/example.png"
+          src={overviewImage}
           alt="example"
           ref={imgRef}
           onLoad={onImgLoad}
-          height={totalSize}
-          width={totalSize}
           style={{
-            maxWidth: `${totalSize}px`,
-            maxHeight: `${totalSize}px`,
+            maxWidth: `${canvasSize}px`,
+            maxHeight: `${canvasSize}px`,
           }}
         />
       </div>
       <DragArea tileSize={`${64}px`} className="dragarea">
-        <canvas id="canvas1" onClick={handleClick}></canvas>
+        <canvas
+          id="canvas1"
+          onClick={handleClick}
+          height={canvasSize}
+          width={canvasSize}
+        ></canvas>
         <Draggable
           grid={[4 * canvas2Scale, 4 * canvas2Scale]}
           position={{
@@ -262,8 +267,8 @@ function Canvases(props: Props) {
           bounds={{
             left: 0,
             top: 0,
-            right: totalSize - 64,
-            bottom: totalSize - 64,
+            right: canvasSize - 64,
+            bottom: canvasSize - 64,
           }}
           onStop={handleDrop}
         >
