@@ -1,6 +1,9 @@
+use std::{collections::HashMap, time::Duration};
+
 use crate::api::{
     Color, Position, NO_TILES, OVERVIEW_IMAGE_SIZE, OVERVIEW_TILE_SIZE, ROW_LENGTH, TILE_SIZE,
 };
+use ic_cdk::export::Principal;
 use image::{
     imageops::{self, replace, FilterType},
     DynamicImage, Rgba, RgbaImage,
@@ -84,4 +87,59 @@ fn get_tile_offset(tile_idx: usize) -> (u32, u32) {
     let x = (tile_idx as u32 / ROW_LENGTH) * OVERVIEW_TILE_SIZE;
     let y = (tile_idx as u32 % ROW_LENGTH) * OVERVIEW_TILE_SIZE;
     (x, y)
+}
+
+#[derive(Clone, Debug, Default)]
+pub struct EditsState {
+    edits: HashMap<Principal, u64>,
+}
+
+impl EditsState {
+    pub fn new() -> Self {
+        Self {
+            ..Default::default()
+        }
+    }
+
+    pub fn register_edit(&mut self, principal: Principal, current_time: u64) -> Result<(), &str> {
+        let last_edit = self.edits.get(&principal);
+        if last_edit.is_none()
+            || Duration::from_secs(30) < Duration::from_nanos(current_time - last_edit.unwrap())
+        {
+            self.edits.insert(principal, current_time);
+            Ok(())
+        } else {
+            Err("cooling period didn't expire yet")
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::{ops::Add, str::FromStr};
+
+    #[test]
+    fn test_can_edit() {
+        let mut edit_state = EditsState::new();
+        let principal =
+            Principal::from_str("ohfen-bx4r6-bgfvo-lelhh-rdpuc-wgv5u-a2odj-nzoaf-x3laa-e3hhb-qae")
+                .unwrap();
+        let now = Duration::from_secs(0);
+        assert!(edit_state
+            .register_edit(principal, now.add(Duration::from_secs(5)).as_nanos() as u64)
+            .is_ok());
+        assert!(edit_state
+            .register_edit(
+                principal,
+                now.add(Duration::from_secs(15)).as_nanos() as u64
+            )
+            .is_err());
+        assert!(edit_state
+            .register_edit(
+                principal,
+                now.add(Duration::from_secs(36)).as_nanos() as u64
+            )
+            .is_ok());
+    }
 }
