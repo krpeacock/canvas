@@ -14,22 +14,20 @@ pub struct CanvasState {
     pub overview_image: Vec<u8>,
     pub tile_images: Vec<Vec<u8>>,
     pub raw_overview: DynamicImage,
-    pub raw_tiles: Vec<RgbaImage>,
+    pub raw_tiles: Vec<DynamicImage>,
 }
 
 impl CanvasState {
     pub fn new() -> Self {
         let raw_tiles = (0..NO_TILES)
-            .map(|_i| RgbaImage::new(TILE_SIZE, TILE_SIZE))
+            .map(|_i| DynamicImage::ImageRgba8(RgbaImage::new(TILE_SIZE, TILE_SIZE)))
             .collect::<Vec<_>>();
 
         let tile_images = raw_tiles
             .iter()
             .map(|t| {
-                let dyn_image = DynamicImage::ImageRgba8(t.clone());
                 let mut bytes = vec![];
-                dyn_image
-                    .write_to(&mut bytes, image::ImageOutputFormat::Png)
+                t.write_to(&mut bytes, image::ImageOutputFormat::Png)
                     .expect("Could not encode tile as PNG!");
                 bytes
             })
@@ -71,14 +69,18 @@ impl CanvasState {
             .raw_tiles
             .get_mut(tile_idx as usize)
             .expect("Invalid tile index.");
-        raw_tile.put_pixel(x, y, rgba);
-        let scaled = imageops::resize(raw_tile, TILE_SIZE, TILE_SIZE, FilterType::Gaussian);
+        raw_tile.as_mut_rgba8().unwrap().put_pixel(x, y, rgba);
+        let scaled = imageops::resize(
+            raw_tile,
+            OVERVIEW_TILE_SIZE,
+            OVERVIEW_TILE_SIZE,
+            FilterType::Gaussian,
+        );
         let (ovw_x, ovw_y) = get_tile_offset(tile_idx);
         replace(&mut self.raw_overview, &scaled, ovw_x, ovw_y);
 
         let mut bytes: Vec<u8> = Vec::new();
-        let dyn_image = DynamicImage::ImageRgba8(scaled);
-        dyn_image
+        raw_tile
             .write_to(&mut bytes, image::ImageOutputFormat::Png)
             .expect("Could not encode tile as PNG!");
         *self
@@ -143,8 +145,10 @@ impl EditsState {
 
 #[cfg(test)]
 mod tests {
+    use image::{GenericImageView, Pixel};
+
     use super::*;
-    use std::{ops::Add, str::FromStr};
+    use std::{io::Cursor, ops::Add, str::FromStr};
 
     #[test]
     fn test_can_edit() {
@@ -174,8 +178,8 @@ mod tests {
     fn update_pixel_changes_tile() {
         let mut canvas_state = CanvasState::default();
 
-        let x = 2 * 64;
-        let y = 15 * 64;
+        let x = 2 * 64 + 1;
+        let y = 15 * 64 + 1;
         let rel_x = x % TILE_SIZE;
         let rel_y = y % TILE_SIZE;
         let col = x / TILE_SIZE;
@@ -205,5 +209,31 @@ mod tests {
             .map(|x| x.0)
             .unwrap();
         assert_eq!(idx as u32, tile_idx);
+
+        let tile = canvas_state.tile_images.get(idx).unwrap();
+        let img2 = image::io::Reader::new(Cursor::new(tile))
+            .with_guessed_format()
+            .unwrap();
+        let img2 = img2.decode().unwrap();
+
+        let actual_pixel = img2.get_pixel(rel_x, rel_y).to_rgba();
+        let actual_pixel = actual_pixel.channels();
+        let expected_pixel = &[255, 255, 255, 255];
+        assert_eq!(actual_pixel, expected_pixel);
+
+        let ovw_x = col * OVERVIEW_TILE_SIZE;
+        let ovw_y = row * OVERVIEW_TILE_SIZE;
+
+        let ovw_image = canvas_state.overview_image;
+
+        let img2 = image::io::Reader::new(Cursor::new(ovw_image))
+            .with_guessed_format()
+            .unwrap();
+        let img2 = img2.decode().unwrap();
+
+        let actual_pixel = img2.get_pixel(ovw_x, ovw_y).to_rgba();
+        let actual_pixel = actual_pixel.channels();
+        let expected_pixel = &[43, 43, 43, 43];
+        assert_eq!(actual_pixel, expected_pixel);
     }
 }

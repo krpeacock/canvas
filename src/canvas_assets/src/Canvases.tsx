@@ -6,6 +6,7 @@ import { ColorResult, SketchPicker } from "react-color";
 import { Flex } from "@adobe/react-spectrum";
 import { useContext } from "react";
 import { AppContext } from "./App";
+import { Position, Focus } from './tiles';
 
 const DragArea = styled.section<{ tileSize: string }>`
   --tileSize: ${(props) => props.tileSize};
@@ -109,9 +110,9 @@ const SubView = styled.section`
   }
 `;
 
-interface Props {}
+interface Props { }
 function Canvases(props: Props) {
-  const {} = props;
+  const { } = props;
   const [totalSize, setTotalSize] = useState(0);
   const [canvasSize, setCanvasSize] = useState(100);
   const [canvas2Scale, setCanvas2Scale] = useState(1);
@@ -158,6 +159,25 @@ function Canvases(props: Props) {
     setPosition?.({ y, x });
   }
 
+  function handleClick(e: React.MouseEvent) {
+    let focus = new Focus(new Position(e.nativeEvent.offsetX, e.nativeEvent.offsetY));
+    // const selection = document.querySelector("#selection") as HTMLDivElement;
+    // assert(selection);
+
+    // const [x, y] = selection.style.transform
+    //   .slice(10, selection.style.transform.length - 1)
+    //   .split(", ")
+    //   .map((substr) => Number(substr.split("px")[0]));
+
+    // totalSize;
+    // canvasSize;
+    // console.log(e);
+
+    // console.log(`moving to ${e.nativeEvent.offsetX}, ${e.nativeEvent.offsetY}`);
+
+    setPosition?.({ x: focus.position.x, y: focus.position.y });
+  }
+
   function handlePixel(e: any) {
     const pixel = document.querySelector("#pixelWrapper") as HTMLButtonElement;
     assert(pixel);
@@ -194,7 +214,7 @@ function Canvases(props: Props) {
     }
   }, [position]);
 
-  const clickCapture = () => {};
+  const clickCapture = () => { };
 
   return (
     <Wrapper>
@@ -213,9 +233,13 @@ function Canvases(props: Props) {
         />
       </div>
       <DragArea tileSize={`${64}px`} className="dragarea">
-        <canvas id="canvas1"></canvas>
+        <canvas id="canvas1" onClick={handleClick}></canvas>
         <Draggable
           grid={[4 * canvas2Scale, 4 * canvas2Scale]}
+          position={{
+            x: position.x,
+            y: position.y
+          }}
           bounds={{
             left: 0,
             top: 0,
