@@ -1,5 +1,5 @@
 use ic_cdk::{
-    export::candid::{CandidType, Deserialize},
+    export::candid::{CandidType, Deserialize, export_service, candid_method},
     storage,
 };
 use ic_cdk_macros::*;
@@ -31,6 +31,7 @@ pub struct Color {
     pub a: u8,
 }
 
+#[candid_method(query)]
 #[query]
 pub fn http_request(request: HttpRequest) -> HttpResponse {
     // /tile.<tile_idx>.png
@@ -72,7 +73,7 @@ pub fn http_request(request: HttpRequest) -> HttpResponse {
     })
 }
 
-#[update]
+#[candid_method(update)]
 fn update_pixel(tile_idx: u32, pos: Position, color: Color) {
     let state = storage::get_mut::<CanvasState>();
     state.update_pixel(tile_idx, pos, color);
@@ -88,4 +89,11 @@ fn png_header_fields(body: &[u8]) -> Vec<HeaderField> {
         HeaderField("Content-Type".to_string(), "image/png".to_string()),
         HeaderField("Content-Length".to_string(), body.len().to_string()),
     ]
+}
+
+export_service!();
+
+#[ic_cdk_macros::query(name = "__get_candid_interface_tmp_hack")]
+fn export_candid() -> String {
+    __export_service()
 }
