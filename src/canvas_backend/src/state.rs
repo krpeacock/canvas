@@ -91,6 +91,7 @@ fn get_tile_offset(tile_idx: usize) -> (u32, u32) {
 
 #[derive(Clone, Debug, Default)]
 pub struct EditsState {
+    start: Option<u64>,
     edits: HashMap<Principal, u64>,
 }
 
@@ -110,6 +111,15 @@ impl EditsState {
             Ok(())
         } else {
             Err("cooling period didn't expire yet")
+        }
+    }
+
+    pub fn start(&mut self) -> Result<(), &str> {
+        if let Some(_) = self.start {
+            Err("already started")
+        } else {
+            self.start = Some(ic_cdk::api::time());
+            Ok(())
         }
     }
 }
