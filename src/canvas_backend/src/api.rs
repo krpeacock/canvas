@@ -14,7 +14,7 @@ pub const IMAGE_SIZE: u32 = 1024;
 pub const TILE_SIZE: u32 = 64;
 pub const ROW_LENGTH: u32 = IMAGE_SIZE / TILE_SIZE;
 pub const NO_TILES: u32 = ROW_LENGTH * ROW_LENGTH;
-pub const OVERVIEW_IMAGE_SIZE: u32 = 512;
+pub const OVERVIEW_IMAGE_SIZE: u32 = 1024;
 pub const OVERVIEW_TILE_SIZE: u32 = OVERVIEW_IMAGE_SIZE / ROW_LENGTH;
 
 #[derive(Clone, Debug, Default, CandidType, Deserialize)]

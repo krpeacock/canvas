@@ -168,10 +168,11 @@ function Canvases(props: Props) {
       const canvas = document.getElementById("canvas1") as HTMLCanvasElement;
       const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
       ctx.drawImage(fullsize, 0, 0);
+      handleDrop();
     }
   }
 
-  function handleDrop(e: any) {
+  function handleDrop() {
     const selection = document.querySelector("#selection") as HTMLDivElement;
     assert(selection);
 
@@ -180,9 +181,8 @@ function Canvases(props: Props) {
       .split(", ")
       .map((substr) => Number(substr.split("px")[0]));
 
-    canvasSize;
-
     setPosition?.({ y, x });
+    setAbsolutePosition?.({ y, x });
   }
 
   function handleClick(e: React.MouseEvent) {
@@ -210,15 +210,18 @@ function Canvases(props: Props) {
     setAbsolutePosition?.({ x: absoluteX, y: absoluteY });
   }
 
-  useEffect(() => {
+  const renderCanvas2 = () => {
     const fullsize = document.querySelector("#fullsize img") as
       | HTMLImageElement
       | undefined;
     if (fullsize) {
+      const canvas1 = document.getElementById("canvas1") as HTMLCanvasElement;
+
       const canvas = document.getElementById("canvas2") as HTMLCanvasElement;
       const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
+      ctx.clearRect(0, 0, 256 * canvas2Scale, 256 * canvas2Scale);
       ctx.drawImage(
-        fullsize,
+        canvas1,
         position.x,
         position.y,
         64,
@@ -229,6 +232,10 @@ function Canvases(props: Props) {
         256 * canvas2Scale
       );
     }
+  };
+
+  useEffect(() => {
+    renderCanvas2();
   }, [position]);
 
   const overviewImage =
@@ -318,15 +325,18 @@ function Canvases(props: Props) {
           </p>
           <SketchPicker
             color={color}
+            disableAlpha
             onChange={(color) => {
-              setColor?.({ ...color.rgb, a: color.rgb.a ?? 1 });
+              // map from percent to u8 byte value
+              const aValue = color.rgb.a ? color.rgb.a : 255;
+              setColor?.({ ...color.rgb, a: aValue });
             }}
           ></SketchPicker>
           <p style={{ color: "black", maxWidth: "400px" }}>
             Use the Color Selector to choose the color for your pixel, and drag
             the cursor to your chosen location. Press Submit When you are ready!
           </p>
-          <Submit />
+          <Submit handleDrop={handleDrop} renderCanvas2={renderCanvas2} />
         </View>
       </Flex>
     </Wrapper>

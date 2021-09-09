@@ -70,14 +70,8 @@ impl CanvasState {
             .get_mut(tile_idx as usize)
             .expect("Invalid tile index.");
         raw_tile.as_mut_rgba8().unwrap().put_pixel(x, y, rgba);
-        let scaled = imageops::resize(
-            raw_tile,
-            OVERVIEW_TILE_SIZE,
-            OVERVIEW_TILE_SIZE,
-            FilterType::Gaussian,
-        );
         let (ovw_x, ovw_y) = get_tile_offset(tile_idx);
-        replace(&mut self.raw_overview, &scaled, ovw_x, ovw_y);
+        replace(&mut self.raw_overview, raw_tile, ovw_x, ovw_y);
 
         let mut bytes: Vec<u8> = Vec::new();
         raw_tile

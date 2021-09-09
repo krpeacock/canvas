@@ -17,6 +17,7 @@ import { AppContext } from "./App";
 import {
   Position,
 } from "../../declarations/canvas_backend/canvas_backend.did";
+import { getTileAndRelativePosition, refreshTile } from "./utils";
 
 const Box = styled.div<{ background: string }>`
   height: 32px;
@@ -25,44 +26,47 @@ const Box = styled.div<{ background: string }>`
   background: ${(props) => props.background};
 `;
 
-const TILE_SIZE = 64;
-const ROW_LENGTH = 16;
+function Submit(props: { handleDrop: any; renderCanvas2: any }) {
+  const { handleDrop, renderCanvas2 } = props;
+  const [isLocked, setIsLocked] = useState(false);
 
-function Submit() {
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const { absolutePosition, color, actor } = useContext(AppContext);
   const submit = async () => {
     if (!absolutePosition || !color || !actor) {
       throw new Error("Requires a position and color");
     }
 
-    setIsSubmitting(true);
+    setIsLocked(true);
     toast("Submitting your pixel");
-    let get_tile_idx = (x, y) => {
-      return Math.floor(x / TILE_SIZE) + Math.floor(y / TILE_SIZE) * ROW_LENGTH;
-    };
-    let tileIdx = get_tile_idx(absolutePosition.x, absolutePosition.y);
-    let relX = absolutePosition.x % TILE_SIZE;
-    let relY = absolutePosition.y % TILE_SIZE;
-    let relativePosition: Position = {x: relX, y: relY};
+    const { tileIdx, relativePosition } =
+      getTileAndRelativePosition(absolutePosition);
+    console.log(color);
     actor
-      .update_pixel(tileIdx, relativePosition, color)
-      .then(() => {
+      .update_pixel(tileIdx, relativePosition, { ...color, a: 255 })
+      .then(async () => {
         toast.success("Submitted! You can play again in 30 seconds");
+        await refreshTile(tileIdx);
+        handleDrop();
+        renderCanvas2();
       })
       .catch((err) => {
         console.error(err);
-        toast.error("There was a problem submitting your pixel");
+        toast.error(
+          "There was a problem submitting your pixel. Make sure you have logged in and have waited 30 seconds since your last submission!"
+        );
       })
       .finally(() => {
-        setIsSubmitting(false);
+        window.setTimeout(() => {
+          setIsLocked(false);
+          toast("Ready to submit again!");
+        }, 30000);
       });
   };
-  const formattedColor = `rgba(${color.r}, ${color.g}, ${color.b}, ${color.a})`;
+  const formattedColor = `rgba(${color.r}, ${color.g}, ${color.b}, ${255})`;
 
   return (
     <DialogTrigger>
-      <Button variant="cta" type="submit">
+      <Button variant="cta" type="submit" isDisabled={isLocked}>
         Submit
       </Button>
       {(close) => {

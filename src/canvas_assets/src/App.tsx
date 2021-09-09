@@ -45,7 +45,7 @@ export const AppContext = React.createContext<{
     r: 34,
     g: 25,
     b: 77,
-    a: 100,
+    a: 255,
   },
 });
 
@@ -122,9 +122,35 @@ function App(props: Props) {
                 direction="column"
                 wrap="wrap"
                 justifyContent="start"
-                alignItems="end"
+                alignItems="start"
                 gap="3rem"
               >
+                <div>
+                  <p>
+                    Welcome to IC Canvas! This is an experimental project from
+                    the Dfinity Foundation 2021 hackathon. Below you are two
+                    canvases. One contains a 1024 x 1024 pixel canvas, which
+                    starts with a blank slate. For your convenience, you can
+                    click anywhere on the canvas, or drag the blinking cursor to
+                    choose where you would like to work.
+                  </p>
+                  <p>
+                    Below is a second canvas, which shows you a zoomed in view
+                    of the primary canvas. You can use the round cursor to
+                    select the pixel you would like to update. You can update
+                    the color you want to use with the color picker, and then
+                    you can submit your pixel to the canvas!
+                  </p>
+                  <p>
+                    This experiment will start fresh on Monday, September 13th,
+                    and will run for a week. Every participant will recieve a
+                    single pixel as an NFT at the end of the experiment, and we
+                    will auction off the final image as an NFT, with half the
+                    proceeds going to the hackathon team, and half going to the
+                    <a href="icproject.org">Infinite Charity Project</a>. Have
+                    fun!
+                  </p>
+                </div>
                 <Canvases />
               </Flex>
             </Flex>
