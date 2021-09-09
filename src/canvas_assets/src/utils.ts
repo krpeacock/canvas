@@ -58,7 +58,7 @@ export const refreshTile = async (tileIdx: number) => {
   const src =
     process.env.NODE_ENV === "development"
       ? `http://localhost:8000/tile.${tileIdx}.png?canisterId=${process.env.CANVAS_BACKEND_CANISTER_ID}`
-      : `https://${process.env.CANVAS_BACKEND_CANISTER_ID}.ic0.app/tile.${tileIdx}.png`;
+      : `https://${process.env.CANVAS_BACKEND_CANISTER_ID}.raw.ic0.app/tile.${tileIdx}.png`;
   const img = document.createElement("img");
 
   img.src = src;
