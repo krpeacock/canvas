@@ -1,5 +1,6 @@
-import { ActorSubclass, Identity } from "@dfinity/agent";
+import { ActorSubclass, Identity, SignIdentity } from "@dfinity/agent";
 import { AuthClient } from "@dfinity/auth-client";
+import { Principal } from "@dfinity/principal";
 import { clear, get, remove, set } from "local-storage";
 import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
@@ -12,6 +13,7 @@ export type Provider = "II" | "Plug";
 export function useAuthClient(props?: UseAuthClientProps) {
   const [authClient, setAuthClient] = useState<AuthClient>();
   const [actor, setActor] = useState<ActorSubclass<_SERVICE>>();
+  const [principal, setPrincipal] = useState<Principal | undefined>(undefined);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [authProvider, setAuthProvider] = useState<"II" | "Plug" | undefined>(
     undefined
@@ -30,7 +32,7 @@ export function useAuthClient(props?: UseAuthClientProps) {
           whitelist,
         });
         const identity = await (window as any).ic?.plug?.agent._identity;
-        initActor(identity);
+        await initActor(identity);
         toast.success("Logged in successfully!");
       } catch (err) {
         console.error(err);
@@ -41,21 +43,23 @@ export function useAuthClient(props?: UseAuthClientProps) {
     } else {
       authClient?.login({
         identityProvider: process.env.II_URL,
-        onSuccess: () => {
-          initActor();
-          setIsAuthenticated(true);
+        onSuccess: async () => {
+          await initActor();
           toast.success("Logged in successfully!");
         },
       });
     }
   };
 
-  const initActor = (identity?: Identity) => {
+  const initActor = async (id?: Identity) => {
+    const identity = (id || authClient?.getIdentity()) as SignIdentity;
     const actor = createActor(canisterId as string, {
       agentOptions: {
-        identity: identity || authClient?.getIdentity(),
+        identity,
       },
     });
+    setPrincipal(identity.getPrincipal());
+    setIsAuthenticated(true);
     setActor(actor);
   };
 
@@ -69,13 +73,9 @@ export function useAuthClient(props?: UseAuthClientProps) {
     AuthClient.create().then(async (client) => {
       const isAuthenticated = await client.isAuthenticated();
       setAuthClient(client);
-      setIsAuthenticated(true);
+      setIsAuthenticated(isAuthenticated);
     });
   }, []);
-
-  useEffect(() => {
-    if (isAuthenticated) initActor();
-  }, [isAuthenticated]);
 
   return {
     authClient,
@@ -85,6 +85,7 @@ export function useAuthClient(props?: UseAuthClientProps) {
     login,
     logout,
     actor,
+    principal,
     authProvider,
   };
 }

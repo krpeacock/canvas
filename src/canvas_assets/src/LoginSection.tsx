@@ -6,7 +6,8 @@ import {
   Text,
 } from "@adobe/react-spectrum";
 import RealTimeCustomerProfile from "@spectrum-icons/workflow/RealTimeCustomerProfile";
-import React from "react";
+import React, { useContext } from "react";
+import { AppContext } from "./App";
 import { useAuthClient } from "./hooks";
 
 interface Props {}
@@ -14,12 +15,12 @@ interface Props {}
 function LoginSection(props: Props) {
   const {} = props;
 
-  const { login, isAuthenticated } = useAuthClient();
+  const { login, isAuthenticated } = useContext(AppContext);
 
   return (
     <Flex margin="auto 1rem">
       <DialogTrigger>
-        <ActionButton>
+        <ActionButton id="loginButton">
           <RealTimeCustomerProfile />
           <Text>{isAuthenticated ? "You are logged in!" : "Log in"}</Text>
         </ActionButton>

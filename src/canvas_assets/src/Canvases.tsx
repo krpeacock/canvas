@@ -206,7 +206,6 @@ function Canvases(props: Props) {
 
     const absoluteX = Math.ceil(x / canvas2Scale / 4 + position.x);
     const absoluteY = Math.ceil(y / canvas2Scale / 4 + position.y);
-    console.log("pixel coordinates:", `${absoluteX}, ${absoluteY}`);
     setAbsolutePosition?.({ x: absoluteX, y: absoluteY });
   }
 

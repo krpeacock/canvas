@@ -38,7 +38,6 @@ export function getXY(tileIdx: number) {
   while (!complete) {
     for (let i = 0; i < ROW_LENGTH; i++) {
       for (let j = 0; j < ROW_LENGTH; j++) {
-        console.log(j === tileIdx);
         if (j + i * ROW_LENGTH === tileIdx) {
           complete = true;
           break;
@@ -74,13 +73,8 @@ export const refreshTile = async (tileIdx: number) => {
     img.addEventListener("load", (e) => {
       const canvas1 = document.getElementById("canvas1") as HTMLCanvasElement;
       const ctx = canvas1.getContext("2d");
-      console.log(ctx, img);
-      console.log(tileIdx, { x, y });
       ctx?.drawImage(img, x, y, TILE_SIZE, TILE_SIZE);
       document.body.removeChild(hiddenContainer);
-
-      console.log("provided tile", tileIdx);
-      console.log(img, { x, y });
 
       resolve();
     });

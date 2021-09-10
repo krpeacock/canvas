@@ -7,6 +7,7 @@ import {
   Flex,
   Heading,
   View,
+  Text,
 } from "@adobe/react-spectrum";
 import React from "react";
 import { useState } from "react";
@@ -14,9 +15,7 @@ import { useContext } from "react";
 import toast from "react-hot-toast";
 import styled from "styled-components";
 import { AppContext } from "./App";
-import {
-  Position,
-} from "../../declarations/canvas_backend/canvas_backend.did";
+import { Position } from "../../declarations/canvas_backend/canvas_backend.did";
 import { getTileAndRelativePosition, refreshTile } from "./utils";
 
 const Box = styled.div<{ background: string }>`
@@ -27,6 +26,10 @@ const Box = styled.div<{ background: string }>`
 `;
 
 function Submit(props: { handleDrop: any; renderCanvas2: any }) {
+  const { principal } = useContext(AppContext);
+  console.log(principal?.toText());
+  const isAuthenticated = principal && !principal.isAnonymous();
+
   const { handleDrop, renderCanvas2 } = props;
   const [isLocked, setIsLocked] = useState(false);
 
@@ -40,7 +43,6 @@ function Submit(props: { handleDrop: any; renderCanvas2: any }) {
     toast("Submitting your pixel");
     const { tileIdx, relativePosition } =
       getTileAndRelativePosition(absolutePosition);
-    console.log(color);
     actor
       .update_pixel(tileIdx, relativePosition, { ...color, a: 255 })
       .then(async () => {
@@ -76,6 +78,7 @@ function Submit(props: { handleDrop: any; renderCanvas2: any }) {
             primaryActionLabel="Submit"
             onPrimaryAction={submit}
             cancelLabel="cancel"
+            isPrimaryActionDisabled={!isAuthenticated}
             width="size-500"
           >
             <Content>
@@ -92,6 +95,25 @@ function Submit(props: { handleDrop: any; renderCanvas2: any }) {
                   </Flex>
                 </dd>
               </dl>
+              {!isAuthenticated ? (
+                <View backgroundColor="red-400">
+                  <Text width="100%">
+                    <p style={{ padding: "0.5rem" }}>
+                      You are not logged in. <br />
+                      Please log in to submit!
+                      <Button
+                        variant="cta"
+                        onPress={() => {
+                          document.getElementById("loginButton")?.click();
+                          close();
+                        }}
+                      >
+                        Log In
+                      </Button>
+                    </p>
+                  </Text>
+                </View>
+              ) : null}
             </Content>
           </AlertDialog>
         );

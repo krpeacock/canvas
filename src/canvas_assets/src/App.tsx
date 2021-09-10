@@ -19,6 +19,7 @@ import LoginSection from "./LoginSection";
 import { useState } from "react";
 import { Toaster } from "react-hot-toast";
 import type { Provider } from "./hooks";
+import { Principal } from "@dfinity/principal";
 
 interface Props {}
 
@@ -30,6 +31,7 @@ export const AppContext = React.createContext<{
   login: (provider: Provider) => Promise<void>;
   logout: () => void;
   actor?: ActorSubclass<_SERVICE>;
+  principal?: Principal;
   position: Position;
   setPosition?: React.Dispatch<React.SetStateAction<Position>>;
   absolutePosition: Position;
@@ -58,7 +60,9 @@ function App(props: Props) {
     login,
     logout,
     actor,
+    principal,
   } = useAuthClient();
+  console.log(actor);
   const [position, setPosition] = useState<Position>({ x: 0, y: 0 });
   const [absolutePosition, setAbsolutePosition] = useState<Position>({
     x: 0,
@@ -70,7 +74,6 @@ function App(props: Props) {
     b: 77,
     a: 100,
   });
-  console.log(actor);
   return (
     <>
       <Toaster
@@ -89,6 +92,7 @@ function App(props: Props) {
             login,
             logout,
             actor,
+            principal,
             position,
             setPosition,
             absolutePosition,
@@ -161,4 +165,4 @@ function App(props: Props) {
   );
 }
 
-export default App;
+export default React.memo(App);
