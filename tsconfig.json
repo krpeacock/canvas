@@ -12,7 +12,7 @@
       "module": "commonjs",
       "strict": true,
       "target": "es2020",
-      "types": ["reflect-metadata", "jest"],
+      "types": ["jest", "node"],
     },
     "exclude": ["**/src/**/*.test.ts"]
   }
