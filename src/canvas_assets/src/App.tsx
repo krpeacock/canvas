@@ -146,7 +146,7 @@ function App(props: Props) {
                     and will run for a week. Every participant will recieve a
                     single pixel as an NFT at the end of the experiment, and we
                     will auction off the final image as an NFT, with half the
-                    proceeds going to the hackathon team, and half going to the
+                    proceeds going to the hackathon team, and half going to the{" "}
                     <a href="icproject.org">Infinite Charity Project</a>. Have
                     fun!
                   </p>

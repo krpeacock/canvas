@@ -31,21 +31,29 @@ export const getTileAndRelativePosition = (absolutePosition: Position) => {
   return { relativePosition, tileIdx };
 };
 
-function getXY(tileIdx: number) {
+export function getXY(tileIdx: number) {
   let x = 0;
   let y = 0;
   let complete = false;
-  for (let i = 0; i < ROW_LENGTH; i++) {
-    for (let j = 0; j < ROW_LENGTH; j++) {
-      if (tileIdx === j + i) {
-        complete = true;
+  while (!complete) {
+    for (let i = 0; i < ROW_LENGTH; i++) {
+      for (let j = 0; j < ROW_LENGTH; j++) {
+        console.log(j === tileIdx);
+        if (j + i * ROW_LENGTH === tileIdx) {
+          complete = true;
+          break;
+        }
+        x += TILE_SIZE;
+      }
+      if (complete) {
         break;
       }
-      x += TILE_SIZE;
+      x = 0;
+      y += TILE_SIZE;
     }
-    if (complete) break;
-    y += TILE_SIZE;
+    complete = true;
   }
+
   return { x, y };
 }
 
@@ -69,6 +77,10 @@ export const refreshTile = async (tileIdx: number) => {
       console.log(ctx, img);
       console.log(tileIdx, { x, y });
       ctx?.drawImage(img, x, y, TILE_SIZE, TILE_SIZE);
+      document.body.removeChild(hiddenContainer);
+
+      console.log("provided tile", tileIdx);
+      console.log(img, { x, y });
 
       resolve();
     });

@@ -13,9 +13,11 @@
     "prebuild": "npm run copy:types",
     "start": "webpack serve --mode development --env development",
     "prestart": "npm run copy:types",
+    "test": "jest",
     "copy:types": "rsync -avr .dfx/$(echo ${DFX_NETWORK:-'**'})/canisters/** --exclude='assets/' --exclude='idl/' --exclude='*.wasm' --delete src/declarations"
   },
   "devDependencies": {
+    "@types/node": "^16.9.1",
     "@types/react-color": "^3.0.5",
     "@types/styled-components": "^5.1.14",
     "assert": "2.0.0",
@@ -26,6 +28,8 @@
     "process": "0.11.10",
     "stream-browserify": "3.0.0",
     "terser-webpack-plugin": "5.1.1",
+    "ts-jest": "^27.0.5",
+    "ts-node": "^10.2.1",
     "util": "0.12.3",
     "webpack": "5.24.4",
     "webpack-cli": "4.5.0",
@@ -48,9 +52,11 @@
     "@react-spectrum/color": "^3.0.0-beta.3",
     "@react-stately/color": "^3.0.0-beta.3",
     "@spectrum-icons/workflow": "^3.2.1",
+    "@types/jest": "^27.0.1",
     "@types/react": "^16.8.0",
     "@types/react-dom": "^16.8.0",
     "css-loader": "^6.2.0",
+    "jest": "^27.1.1",
     "local-storage": "^2.0.0",
     "react": "^16.8.0",
     "react-color": "^2.19.3",
@@ -61,5 +67,16 @@
     "styled-components": "^5.3.1",
     "ts-loader": "^9.2.5",
     "typescript": "^4.4.2"
+  },
+  "jest": {
+    "transform": {
+      ".(ts|tsx)": "ts-jest"
+    },
+    "testRegex": "(/__tests__/.*|\\.(test|spec))\\.(ts|tsx|js)$",
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js"
+    ]
   }
 }
