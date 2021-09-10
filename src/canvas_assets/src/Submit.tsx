@@ -32,8 +32,6 @@ function Submit(props: { handleDrop: any; renderCanvas2: any }) {
   const { absolutePosition, color, actor, isAuthenticated } =
     useContext(AppContext);
   const submit = async () => {
-    debugger;
-
     if (!absolutePosition || !color || !actor) {
       throw new Error("Requires a position and color");
     }

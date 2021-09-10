@@ -32,7 +32,6 @@ export function useAuthClient(props?: UseAuthClientProps) {
       },
     });
     setActor(actor);
-    debugger;
     setIsAuthenticated(true);
   };
 

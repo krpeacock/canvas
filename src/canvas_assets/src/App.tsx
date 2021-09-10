@@ -59,7 +59,6 @@ function App(props: Props) {
     logout,
     actor,
   } = useAuthClient();
-  console.log(actor);
   const [position, setPosition] = useState<Position>({ x: 0, y: 0 });
   const [absolutePosition, setAbsolutePosition] = useState<Position>({
     x: 0,
