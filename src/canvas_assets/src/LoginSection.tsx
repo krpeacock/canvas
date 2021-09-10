@@ -28,10 +28,8 @@ function LoginSection(props: Props) {
           title="Log in to play!"
           variant="confirmation"
           primaryActionLabel="Internet Identity"
-          secondaryActionLabel="Log in with Plug"
           cancelLabel="Cancel"
-          onPrimaryAction={() => login("II")}
-          onSecondaryAction={() => login("Plug")}
+          onPrimaryAction={login}
         >
           You can log in using Internet Identity, or you can use your Plug
           Wallet, if you are using desktop and have the extension installed!

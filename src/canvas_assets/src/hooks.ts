@@ -9,58 +9,31 @@ import { _SERVICE } from "../../declarations/canvas_backend/canvas_backend.did";
 
 type UseAuthClientProps = {};
 
-export type Provider = "II" | "Plug";
 export function useAuthClient(props?: UseAuthClientProps) {
   const [authClient, setAuthClient] = useState<AuthClient>();
   const [actor, setActor] = useState<ActorSubclass<_SERVICE>>();
-  const [principal, setPrincipal] = useState<Principal | undefined>(undefined);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-  const [authProvider, setAuthProvider] = useState<"II" | "Plug" | undefined>(
-    undefined
-  );
 
-  const login = async (provider: Provider) => {
-    if (provider === "Plug") {
-      try {
-        const hasAllowed = await (window as any).ic.plug.requestConnect();
-
-        // Whitelist
-        const whitelist = [canisterId];
-
-        // Make the request
-        const isConnected = await (window as any).ic.plug.requestConnect({
-          whitelist,
-        });
-        const identity = await (window as any).ic?.plug?.agent._identity;
-        await initActor(identity);
+  const login = async () => {
+    authClient?.login({
+      identityProvider: process.env.II_URL,
+      onSuccess: () => {
+        initActor();
         toast.success("Logged in successfully!");
-      } catch (err) {
-        console.error(err);
-        toast.error(
-          "Could not link with Plug. Please try again or continue with Internet Identity"
-        );
-      }
-    } else {
-      authClient?.login({
-        identityProvider: process.env.II_URL,
-        onSuccess: async () => {
-          await initActor();
-          toast.success("Logged in successfully!");
-        },
-      });
-    }
+      },
+    });
   };
 
-  const initActor = async (id?: Identity) => {
-    const identity = (id || authClient?.getIdentity()) as SignIdentity;
+  const initActor = async () => {
+    const identity = authClient?.getIdentity() as SignIdentity;
     const actor = createActor(canisterId as string, {
       agentOptions: {
         identity,
       },
     });
-    setPrincipal(identity.getPrincipal());
-    setIsAuthenticated(true);
     setActor(actor);
+    debugger;
+    setIsAuthenticated(true);
   };
 
   const logout = () => {
@@ -73,7 +46,7 @@ export function useAuthClient(props?: UseAuthClientProps) {
     AuthClient.create().then(async (client) => {
       const isAuthenticated = await client.isAuthenticated();
       setAuthClient(client);
-      setIsAuthenticated(isAuthenticated);
+      initActor();
     });
   }, []);
 
@@ -85,7 +58,5 @@ export function useAuthClient(props?: UseAuthClientProps) {
     login,
     logout,
     actor,
-    principal,
-    authProvider,
   };
 }

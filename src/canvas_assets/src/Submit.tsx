@@ -26,15 +26,14 @@ const Box = styled.div<{ background: string }>`
 `;
 
 function Submit(props: { handleDrop: any; renderCanvas2: any }) {
-  const { principal } = useContext(AppContext);
-  console.log(principal?.toText());
-  const isAuthenticated = principal && !principal.isAnonymous();
-
   const { handleDrop, renderCanvas2 } = props;
   const [isLocked, setIsLocked] = useState(false);
 
-  const { absolutePosition, color, actor } = useContext(AppContext);
+  const { absolutePosition, color, actor, isAuthenticated } =
+    useContext(AppContext);
   const submit = async () => {
+    debugger;
+
     if (!absolutePosition || !color || !actor) {
       throw new Error("Requires a position and color");
     }
