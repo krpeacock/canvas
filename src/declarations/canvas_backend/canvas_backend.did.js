@@ -17,9 +17,14 @@ export const idlFactory = ({ IDL }) => {
     'g' : IDL.Nat8,
     'r' : IDL.Nat8,
   });
+  const Pixel = IDL.Record({
+    'pos' : Position,
+    'color' : Color,
+    'tile_idx' : IDL.Nat32,
+  });
   return IDL.Service({
     'http_request' : IDL.Func([HttpRequest], [HttpResponse], ['query']),
-    'update_pixel' : IDL.Func([IDL.Nat32, Position, Color], [], []),
+    'update_pixels' : IDL.Func([IDL.Vec(Pixel)], [], []),
   });
 };
 export const init = ({ IDL }) => { return []; };

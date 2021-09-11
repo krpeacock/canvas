@@ -7,7 +7,9 @@ import { Flex, Heading, View, Text } from "@adobe/react-spectrum";
 import { useContext } from "react";
 import { AppContext } from "./App";
 import { Position, Focus, FOCUS_SIZE } from "./tiles";
-import Submit from "./Submit";
+import Submit, { Box } from "./Submit";
+import toast from "react-hot-toast";
+import { getAbsoluteFromRelative, getTileAndRelativePosition } from "./utils";
 
 const DragArea = styled.section<{ tileSize: string }>`
   --tileSize: ${(props) => props.tileSize};
@@ -134,6 +136,10 @@ const SubView = styled.section`
       margin-left: 1rem;
     }
   }
+  li {
+    text-decoration: none;
+    list-style: none;
+  }
 `;
 
 interface Props {}
@@ -143,14 +149,8 @@ function Canvases(props: Props) {
   const [canvas2Scale, setCanvas2Scale] = useState(1);
   const imgRef = createRef<HTMLImageElement>();
 
-  const {
-    position,
-    setPosition,
-    absolutePosition,
-    setAbsolutePosition,
-    color,
-    setColor,
-  } = useContext(AppContext);
+  const { position, setPosition, pixels, setPixels, color, setColor } =
+    useContext(AppContext);
 
   useLayoutEffect(() => {
     if (window.innerWidth < 600) {
@@ -182,7 +182,6 @@ function Canvases(props: Props) {
       .map((substr) => Number(substr.split("px")[0]));
 
     setPosition?.({ y, x });
-    setAbsolutePosition?.({ y, x });
   }
 
   function handleClick(e: React.MouseEvent) {
@@ -206,7 +205,19 @@ function Canvases(props: Props) {
 
     const absoluteX = Math.ceil(x / canvas2Scale / 4 + position.x);
     const absoluteY = Math.ceil(y / canvas2Scale / 4 + position.y);
-    setAbsolutePosition?.({ x: absoluteX, y: absoluteY });
+    const { tileIdx, relativePosition } = getTileAndRelativePosition({
+      x: absoluteX,
+      y: absoluteY,
+    });
+
+    if (pixels.length === 8) {
+      toast.error("You may only submit up to 8 pixels at a time");
+    } else {
+      setPixels?.([
+        ...pixels,
+        { color, tile_idx: tileIdx, pos: relativePosition },
+      ]);
+    }
   }
 
   const renderCanvas2 = () => {
@@ -316,21 +327,40 @@ function Canvases(props: Props) {
           backgroundColor="static-white"
           padding="1rem"
         >
-          <Heading level={3}>
-            <span style={{ color: "black" }}>Coordinates</span>
-          </Heading>
-          <p style={{ color: "black" }} key={position.x + position.y}>
-            <code>{JSON.stringify(absolutePosition)}</code>
-          </p>
-          <SketchPicker
-            color={color}
-            disableAlpha
-            onChange={(color) => {
-              // map from percent to u8 byte value
-              const aValue = color.rgb.a ? color.rgb.a : 255;
-              setColor?.({ ...color.rgb, a: aValue });
-            }}
-          ></SketchPicker>
+          <Flex direction="row" wrap>
+            <SketchPicker
+              color={color}
+              disableAlpha
+              onChange={(color) => {
+                // map from percent to u8 byte value
+                const aValue = color.rgb.a ? color.rgb.a : 255;
+                setColor?.({ ...color.rgb, a: aValue });
+              }}
+            ></SketchPicker>
+            <View>
+              <Heading level={3}>
+                <Text>Coordinates</Text>
+              </Heading>
+              <ul>
+                {pixels.map((pixel, idx) => {
+                  const { r, g, b } = pixel.color;
+                  const formattedColor = `rgba(${r}, ${g}, ${b}, ${255})`;
+                  const absolute = getAbsoluteFromRelative(
+                    pixel.tile_idx,
+                    pixel.pos
+                  );
+                  return (
+                    <li>
+                      <Flex direction="row">
+                        <Box background={formattedColor} />
+                        <Text>{JSON.stringify(absolute)}</Text>
+                      </Flex>
+                    </li>
+                  );
+                })}
+              </ul>
+            </View>
+          </Flex>
           <p style={{ color: "black", maxWidth: "400px" }}>
             Use the Color Selector to choose the color for your pixel, and drag
             the cursor to your chosen location. Press Submit When you are ready!

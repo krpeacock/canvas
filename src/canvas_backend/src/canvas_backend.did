@@ -10,8 +10,9 @@ type HttpResponse = record {
   headers : vec record { text; text };
   status_code : nat16;
 };
+type Pixel = record { pos : Position; color : Color; tile_idx : nat32 };
 type Position = record { x : nat32; y : nat32 };
 service : {
   http_request : (HttpRequest) -> (HttpResponse) query;
-  update_pixel : (nat32, Position, Color) -> ();
+  update_pixels : (vec Pixel) -> ();
 }

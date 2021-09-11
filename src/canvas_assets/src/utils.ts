@@ -56,6 +56,11 @@ export function getXY(tileIdx: number) {
   return { x, y };
 }
 
+export function getAbsoluteFromRelative(tileIdx: number, position: Position) {
+  const tilePos = getXY(tileIdx);
+  return { y: tilePos.y + position.y, x: tilePos.x + position.x };
+}
+
 export const refreshTile = async (tileIdx: number) => {
   const { x, y } = getXY(tileIdx);
 
