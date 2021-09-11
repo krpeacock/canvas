@@ -1,11 +1,11 @@
 use std::{collections::HashMap, time::Duration};
 
 use crate::api::{
-    Color, Position, NO_TILES, OVERVIEW_IMAGE_SIZE, OVERVIEW_TILE_SIZE, ROW_LENGTH, TILE_SIZE,
+    Color, Position, NO_TILES, OVERVIEW_IMAGE_SIZE, OVERVIEW_TILE_SIZE, ROW_LENGTH, TILE_SIZE, Pixel,
 };
 use ic_cdk::export::Principal;
 use image::{
-    imageops::{self, replace, FilterType},
+    imageops::{ replace },
     DynamicImage, Rgba, RgbaImage,
 };
 
@@ -88,7 +88,49 @@ impl CanvasState {
             .expect("Could not encode overview image as PNG!");
         self.overview_image = bytes;
     }
+
+    pub fn update_pixels(&mut self, pixels : Vec<Pixel>) {
+        for pixel in pixels {
+            let tile_idx = pixel.tile_idx;
+            let color = pixel.color;
+            let pos = pixel.pos;
+            
+        
+            let tile_idx = tile_idx as usize;
+            let Position { x, y } = pos;
+            let Color { r, g, b, a } = color;
+            let rgba = Rgba([r, g, b, a]);
+            // update tile
+            let raw_tile = self
+                .raw_tiles
+                .get_mut(tile_idx as usize)
+                .expect("Invalid tile index.");
+            raw_tile.as_mut_rgba8().unwrap().put_pixel(x, y, rgba);
+            let (ovw_x, ovw_y) = get_tile_offset(tile_idx);
+            replace(&mut self.raw_overview, raw_tile, ovw_x, ovw_y);
+    
+            let mut bytes: Vec<u8> = Vec::new();
+            raw_tile
+                .write_to(&mut bytes, image::ImageOutputFormat::Png)
+                .expect("Could not encode tile as PNG!");
+            *self
+                .tile_images
+                .get_mut(tile_idx)
+                .expect("Invalid tile index.") = bytes;
+    
+            let mut bytes: Vec<u8> = Vec::new();
+            self.raw_overview
+                .write_to(&mut bytes, image::ImageOutputFormat::Png)
+                .expect("Could not encode overview image as PNG!");
+            self.overview_image = bytes;
+        }
+    }
 }
+
+
+
+
+
 
 impl Default for CanvasState {
     fn default() -> Self {

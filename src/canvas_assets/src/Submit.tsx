@@ -18,7 +18,7 @@ import { AppContext } from "./App";
 import { Position } from "../../declarations/canvas_backend/canvas_backend.did";
 import { getTileAndRelativePosition, refreshTile } from "./utils";
 
-const Box = styled.div<{ background: string }>`
+export const Box = styled.div<{ background: string }>`
   height: 32px;
   width: 32px;
   border: 2px solid white;
@@ -29,24 +29,27 @@ function Submit(props: { handleDrop: any; renderCanvas2: any }) {
   const { handleDrop, renderCanvas2 } = props;
   const [isLocked, setIsLocked] = useState(false);
 
-  const { absolutePosition, color, actor, isAuthenticated } =
-    useContext(AppContext);
+  const { pixels, setPixels, actor, isAuthenticated } = useContext(AppContext);
   const submit = async () => {
-    if (!absolutePosition || !color || !actor) {
-      throw new Error("Requires a position and color");
+    if (!pixels || !actor) {
+      throw new Error("Requires at least one pixel");
     }
 
     setIsLocked(true);
     toast("Submitting your pixel");
-    const { tileIdx, relativePosition } =
-      getTileAndRelativePosition(absolutePosition);
     actor
-      .update_pixel(tileIdx, relativePosition, { ...color, a: 255 })
+      .update_pixels(pixels)
       .then(async () => {
         toast.success("Submitted! You can play again in 30 seconds");
-        await refreshTile(tileIdx);
-        handleDrop();
-        renderCanvas2();
+
+        new Set(pixels.map((pixel) => pixel.tile_idx)).forEach(async (tile) => {
+          refreshTile(tile);
+        });
+        setPixels?.([]);
+        window.setTimeout(() => {
+          handleDrop();
+          renderCanvas2();
+        }, 1000);
       })
       .catch((err) => {
         console.error(err);
@@ -61,7 +64,6 @@ function Submit(props: { handleDrop: any; renderCanvas2: any }) {
         }, 30000);
       });
   };
-  const formattedColor = `rgba(${color.r}, ${color.g}, ${color.b}, ${255})`;
 
   return (
     <DialogTrigger>
@@ -79,18 +81,24 @@ function Submit(props: { handleDrop: any; renderCanvas2: any }) {
             width="size-500"
           >
             <Content>
-              <p>Ready to go? Your change is:</p>
+              <p>Ready to go? Your changes are:</p>
               <Divider></Divider>
               <dl>
-                <dt>Pixel:</dt>
-                <dd>{`{ x: ${absolutePosition.x}, y: ${absolutePosition.y} }`}</dd>
-                <dt>Color</dt>
-                <dd>
-                  <Flex direction="row">
-                    <span>{formattedColor}</span>
-                    <Box background={formattedColor} />
-                  </Flex>
-                </dd>
+                {pixels.map((pixel) => {
+                  const { r, g, b } = pixel.color;
+                  const formattedColor = `rgba(${r}, ${g}, ${b}, ${255})`;
+                  <>
+                    <dt>Coordinates:</dt>
+                    <dd>{`{ x: ${pixel.pos.x}, y: ${pixel.pos.y} }`}</dd>
+                    <dt>Color</dt>
+                    <dd>
+                      <Flex direction="row">
+                        <span>{formattedColor}</span>
+                        <Box background={formattedColor} />
+                      </Flex>
+                    </dd>
+                  </>;
+                })}
               </dl>
               {!isAuthenticated ? (
                 <View backgroundColor="red-400">

@@ -10,6 +10,7 @@ import { AuthClient } from "@dfinity/auth-client";
 import { ActorSubclass } from "@dfinity/agent";
 import {
   Color,
+  Pixel,
   Position,
   _SERVICE,
 } from "../../declarations/canvas_backend/canvas_backend.did";
@@ -32,15 +33,15 @@ export const AppContext = React.createContext<{
   actor?: ActorSubclass<_SERVICE>;
   position: Position;
   setPosition?: React.Dispatch<React.SetStateAction<Position>>;
-  absolutePosition: Position;
-  setAbsolutePosition?: React.Dispatch<React.SetStateAction<Position>>;
+  pixels: Pixel[];
+  setPixels?: React.Dispatch<React.SetStateAction<Pixel[]>>;
   color: Color;
   setColor?: React.Dispatch<React.SetStateAction<Color>>;
 }>({
   login: async () => {},
   logout: () => {},
   position: { x: 0, y: 0 },
-  absolutePosition: { x: 0, y: 0 },
+  pixels: [],
   color: {
     r: 34,
     g: 25,
@@ -60,10 +61,7 @@ function App(props: Props) {
     actor,
   } = useAuthClient();
   const [position, setPosition] = useState<Position>({ x: 0, y: 0 });
-  const [absolutePosition, setAbsolutePosition] = useState<Position>({
-    x: 0,
-    y: 0,
-  });
+  const [pixels, setPixels] = useState<Pixel[]>([]);
   const [color, setColor] = useState<Color>({
     r: 34,
     g: 25,
@@ -90,8 +88,8 @@ function App(props: Props) {
             actor,
             position,
             setPosition,
-            absolutePosition,
-            setAbsolutePosition,
+            pixels,
+            setPixels,
             color,
             setColor,
           }}

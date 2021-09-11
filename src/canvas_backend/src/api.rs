@@ -1,5 +1,6 @@
+use serde::{Deserialize, Serialize};
 use ic_cdk::{
-    export::candid::{candid_method, export_service, CandidType, Deserialize},
+    export::candid::{candid_method, export_service, CandidType},
     storage,
 };
 use ic_cdk_macros::*;
@@ -17,19 +18,27 @@ pub const NO_TILES: u32 = ROW_LENGTH * ROW_LENGTH;
 pub const OVERVIEW_IMAGE_SIZE: u32 = 1024;
 pub const OVERVIEW_TILE_SIZE: u32 = OVERVIEW_IMAGE_SIZE / ROW_LENGTH;
 
-#[derive(Clone, Debug, Default, CandidType, Deserialize)]
+#[derive(Clone, Debug, Default, CandidType, Deserialize, Serialize)]
 pub struct Position {
     pub x: u32,
     pub y: u32,
 }
 
-#[derive(Clone, Debug, Default, CandidType, Deserialize)]
+#[derive(Clone, Debug, Default, CandidType, Deserialize, Serialize)]
 pub struct Color {
     pub r: u8,
     pub g: u8,
     pub b: u8,
     pub a: u8,
 }
+
+#[derive(CandidType, Serialize, Deserialize)]
+pub struct Pixel {
+    pub tile_idx: u32,
+    pub pos: Position,
+    pub color: Color,
+}
+
 
 #[candid_method(query)]
 #[query]
@@ -75,14 +84,21 @@ pub fn http_request(request: HttpRequest) -> HttpResponse {
 
 #[candid_method(update)]
 #[update]
-fn update_pixel(tile_idx: u32, pos: Position, color: Color) {
+fn update_pixels(pixels: Vec<Pixel>) {
     let canvas = storage::get_mut::<CanvasState>();
     let edits = storage::get_mut::<EditsState>();
-    if edits
+
+    if pixels.len() <= 8 {
+        ic_cdk::print(format!("{:?}", pixels.len()));
+        if edits
         .register_edit(ic_cdk::caller(), ic_cdk::api::time())
         .is_ok()
-    {
-        canvas.update_pixel(tile_idx, pos, color);
+        {
+            for pixel in pixels {
+                ic_cdk::print(format!("pixel update: x={:?} y=${:?}", pixel.pos.x, pixel.pos.y));
+                canvas.update_pixel(pixel.tile_idx, pixel.pos, pixel.color);
+            }
+        }
     }
 }
 

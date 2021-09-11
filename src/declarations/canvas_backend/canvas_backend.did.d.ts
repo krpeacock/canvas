@@ -16,10 +16,13 @@ export interface HttpResponse {
   'headers' : Array<[string, string]>,
   'status_code' : number,
 }
+export interface Pixel {
+  'pos' : Position,
+  'color' : Color,
+  'tile_idx' : number,
+}
 export interface Position { 'x' : number, 'y' : number }
 export interface _SERVICE {
   'http_request' : (arg_0: HttpRequest) => Promise<HttpResponse>,
-  'update_pixel' : (arg_0: number, arg_1: Position, arg_2: Color) => Promise<
-      undefined
-    >,
+  'update_pixels' : (arg_0: Array<Pixel>) => Promise<undefined>,
 }
