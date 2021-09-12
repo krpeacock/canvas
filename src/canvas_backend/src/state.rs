@@ -1,8 +1,10 @@
-use std::{collections::HashMap, time::Duration};
+use std::{
+    collections::{HashMap, HashSet},
+    time::Duration,
+};
 
 use crate::api::{
-    Color, Pixel, Position, NO_TILES, OVERVIEW_IMAGE_SIZE, OVERVIEW_TILE_SIZE, ROW_LENGTH,
-    TILE_SIZE,
+    Color, Position, NO_TILES, OVERVIEW_IMAGE_SIZE, OVERVIEW_TILE_SIZE, ROW_LENGTH, TILE_SIZE,
 };
 use ic_cdk::export::Principal;
 use image::{imageops::replace, DynamicImage, Rgba, RgbaImage};
@@ -144,6 +146,7 @@ const EXPERIMENT_DURATION: u64 = Duration::from_secs(604800).as_nanos() as u64;
 pub struct EditsState {
     pub start: Option<u64>,
     pub edits: HashMap<Principal, u64>,
+    pub pixel_requested: HashSet<Principal>,
 }
 
 impl EditsState {

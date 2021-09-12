@@ -1,4 +1,4 @@
-use std::{collections::HashMap, io::Cursor, sync::RwLock};
+use std::collections::{HashMap, HashSet};
 
 use ic_cdk::{
     export::{
@@ -8,7 +8,6 @@ use ic_cdk::{
     storage,
 };
 use ic_cdk_macros::*;
-use image::DynamicImage;
 use serde::{Deserialize, Serialize};
 
 use crate::{
@@ -96,8 +95,8 @@ pub fn time_left() -> u64 {
 #[candid_method(update)]
 #[update]
 pub fn update_pixels(pixels: Vec<Pixel>) {
-    let mut canvas = storage::get_mut::<CanvasState>();
-    let mut edits = storage::get_mut::<EditsState>();
+    let canvas = storage::get_mut::<CanvasState>();
+    let edits = storage::get_mut::<EditsState>();
 
     if pixels.len() <= 8 {
         ic_cdk::print(format!("{:?}", pixels.len()));
@@ -139,6 +138,7 @@ fn canister_pre_upgrade() {
     storage::stable_save((
         edits.edits.clone(),
         edits.start.clone(),
+        edits.pixel_requested.clone(),
         canvas.tile_images.clone(),
         canvas.overview_image.clone(),
     ))
@@ -151,11 +151,16 @@ fn canister_post_upgrade() {
 
     let edits_state = storage::get_mut::<EditsState>();
     let canvas_state = storage::get_mut::<CanvasState>();
-    if let Ok((edits, start, tiles, overview)) =
-        storage::stable_restore::<(HashMap<Principal, u64>, Option<u64>, Vec<Vec<u8>>, Vec<u8>)>()
-    {
+    if let Ok((edits, start, pixel_requested, tiles, overview)) = storage::stable_restore::<(
+        HashMap<Principal, u64>,
+        Option<u64>,
+        HashSet<Principal>,
+        Vec<Vec<u8>>,
+        Vec<u8>,
+    )>() {
         edits_state.start = start;
         edits_state.edits = edits;
+        edits_state.pixel_requested = pixel_requested;
         canvas_state.raw_tiles = tiles
             .iter()
             .map(|t| image::load_from_memory(t).unwrap())
