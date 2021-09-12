@@ -147,7 +147,6 @@ fn canister_pre_upgrade() {
 
 #[export_name = "canister_post_upgrade"]
 fn canister_post_upgrade() {
-    // dfn_core::printer::hook();
     ic_cdk::println!("Executing post upgrade");
 
     let edits_state = storage::get_mut::<EditsState>();
@@ -161,7 +160,10 @@ fn canister_post_upgrade() {
             .iter()
             .map(|t| image::load_from_memory(t).unwrap())
             .collect();
-        canvas_state.raw_overview = image::load_from_memory(&overview).unwrap()
+        canvas_state.raw_overview = image::load_from_memory(&overview).unwrap();
+
+        // TODO: To reset the start time, uncomment, deploy, comment out again, and redeploy.
+        // edits_state.start = None;
     } else {
         ic_cdk::println!("failed to restore state yet again...");
     }
