@@ -24,5 +24,6 @@ export interface Pixel {
 export interface Position { 'x' : number, 'y' : number }
 export interface _SERVICE {
   'http_request' : (arg_0: HttpRequest) => Promise<HttpResponse>,
+  'time_left' : () => Promise<bigint>,
   'update_pixels' : (arg_0: Array<Pixel>) => Promise<undefined>,
 }

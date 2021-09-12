@@ -14,5 +14,6 @@ type Pixel = record { pos : Position; color : Color; tile_idx : nat32 };
 type Position = record { x : nat32; y : nat32 };
 service : {
   http_request : (HttpRequest) -> (HttpResponse) query;
+  time_left : () -> (nat64) query;
   update_pixels : (vec Pixel) -> ();
 }

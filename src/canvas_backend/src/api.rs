@@ -1,9 +1,15 @@
-use serde::{Deserialize, Serialize};
+use std::{collections::HashMap, io::Cursor, sync::RwLock};
+
 use ic_cdk::{
-    export::candid::{candid_method, export_service, CandidType},
+    export::{
+        candid::{candid_method, export_service, CandidType},
+        Principal,
+    },
     storage,
 };
 use ic_cdk_macros::*;
+use image::DynamicImage;
+use serde::{Deserialize, Serialize};
 
 use crate::{
     http_request::{HeaderField, HttpRequest, HttpResponse},
@@ -38,7 +44,6 @@ pub struct Pixel {
     pub pos: Position,
     pub color: Color,
 }
-
 
 #[candid_method(query)]
 #[query]
@@ -82,31 +87,84 @@ pub fn http_request(request: HttpRequest) -> HttpResponse {
     })
 }
 
+#[candid_method(query)]
+#[query]
+pub fn time_left() -> u64 {
+    storage::get::<EditsState>().time_left()
+}
+
 #[candid_method(update)]
 #[update]
-fn update_pixels(pixels: Vec<Pixel>) {
-    let canvas = storage::get_mut::<CanvasState>();
-    let edits = storage::get_mut::<EditsState>();
+pub fn update_pixels(pixels: Vec<Pixel>) {
+    let mut canvas = storage::get_mut::<CanvasState>();
+    let mut edits = storage::get_mut::<EditsState>();
 
     if pixels.len() <= 8 {
         ic_cdk::print(format!("{:?}", pixels.len()));
         if edits
-        .register_edit(ic_cdk::caller(), ic_cdk::api::time())
-        .is_ok()
+            .register_edit(ic_cdk::caller(), ic_cdk::api::time())
+            .is_ok()
         {
             for pixel in pixels {
-                ic_cdk::print(format!("pixel update: x={:?} y=${:?}", pixel.pos.x, pixel.pos.y));
+                ic_cdk::print(format!(
+                    "pixel update: x={:?} y=${:?}",
+                    pixel.pos.x, pixel.pos.y
+                ));
                 canvas.update_pixel(pixel.tile_idx, pixel.pos, pixel.color);
             }
         }
     }
+    // storage::stable_save(canvas);
+    // storage::stable_save(edits);
 }
 
+// lazy_static! {
+//     pub static ref CANVAS: RwLock<CanvasState> = RwLock::new(CanvasState::new());
+//     pub static ref EDITS: RwLock<EditsState> = RwLock::new(EditsState::new());
+// }
+
+#[candid_method(init)]
 #[init]
 fn init() {
     let _canvas = storage::get_mut::<CanvasState>();
     let _edits = storage::get_mut::<EditsState>();
-    _edits.start().ok();
+    ic_cdk::println!("initializing...");
+}
+
+#[export_name = "canister_pre_upgrade"]
+fn canister_pre_upgrade() {
+    ic_cdk::println!("Executing pre upgrade");
+    let edits = storage::get::<EditsState>();
+    let canvas = storage::get::<CanvasState>();
+    storage::stable_save((
+        edits.edits.clone(),
+        edits.start.clone(),
+        canvas.tile_images.clone(),
+        canvas.overview_image.clone(),
+    ))
+    .ok();
+}
+
+#[export_name = "canister_post_upgrade"]
+fn canister_post_upgrade() {
+    // dfn_core::printer::hook();
+    ic_cdk::println!("Executing post upgrade");
+
+    let edits_state = storage::get_mut::<EditsState>();
+    let canvas_state = storage::get_mut::<CanvasState>();
+    if let Ok((edits, start, tiles, overview)) =
+        storage::stable_restore::<(HashMap<Principal, u64>, Option<u64>, Vec<Vec<u8>>, Vec<u8>)>()
+    {
+        edits_state.start = start;
+        edits_state.edits = edits;
+        canvas_state.raw_tiles = tiles
+            .iter()
+            .map(|t| image::load_from_memory(t).unwrap())
+            .collect();
+        canvas_state.raw_overview = image::load_from_memory(&overview).unwrap()
+    } else {
+        ic_cdk::println!("failed to restore state yet again...");
+    }
 }
 
 fn png_header_fields(body: &[u8]) -> Vec<HeaderField> {

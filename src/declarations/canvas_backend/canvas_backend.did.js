@@ -24,6 +24,7 @@ export const idlFactory = ({ IDL }) => {
   });
   return IDL.Service({
     'http_request' : IDL.Func([HttpRequest], [HttpResponse], ['query']),
+    'time_left' : IDL.Func([], [IDL.Nat64], ['query']),
     'update_pixels' : IDL.Func([IDL.Vec(Pixel)], [], []),
   });
 };
