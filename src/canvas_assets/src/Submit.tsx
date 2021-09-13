@@ -91,7 +91,7 @@ function Submit(props: { handleDrop: any; renderCanvas2: any }) {
         type="submit"
         isDisabled={isLocked}
         onPress={() => {
-          if (isConfirmDisabled) {
+          if (isConfirmDisabled && isAuthenticated) {
             submit();
           } else {
             setDialogOpen(true);
@@ -109,7 +109,6 @@ function Submit(props: { handleDrop: any; renderCanvas2: any }) {
             cancelLabel="cancel"
             isPrimaryActionDisabled={!isAuthenticated}
             width="size-500"
-            isHidden={isConfirmDisabled && !isAuthenticated}
           >
             <Content>
               <p>Ready to go? Your change is:</p>

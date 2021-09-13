@@ -17,7 +17,6 @@ export function useAuthClient(props?: UseAuthClientProps) {
   const login = async () => {
     authClient?.login({
       identityProvider: process.env.II_URL,
-      maxTimeToLive: BigInt(604800000),
       onSuccess: () => {
         initActor();
         toast.success("Logged in successfully!");

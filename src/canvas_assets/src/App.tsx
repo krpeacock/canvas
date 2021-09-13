@@ -178,7 +178,12 @@ function App(props: Props) {
                     proceeds going to the hackathon team, and half going to
                     environmental charity. Logging in with the Internet Identity
                     is secure and anonymous, and is how we will reward you with
-                    your NFT pixel after the canvas is complete. Have fun!
+                    your NFT pixel after the canvas is complete. Have fun, and
+                    try joining the DSCVR community and coordinating at{" "}
+                    <a href="https://dscvr.one/p/ic-canvas">
+                      https://dscvr.one/p/ic-canvas
+                    </a>
+                    !
                   </p>
                 </div>
                 <Canvases />

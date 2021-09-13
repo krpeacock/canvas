@@ -20,6 +20,7 @@ export const idlFactory = ({ IDL }) => {
   return IDL.Service({
     'check_cooldown' : IDL.Func([], [IDL.Nat64], ['query']),
     'http_request' : IDL.Func([HttpRequest], [HttpResponse], ['query']),
+    'time_left' : IDL.Func([], [IDL.Nat64], ['query']),
     'update_pixel' : IDL.Func([IDL.Nat32, Position, Color], [], []),
   });
 };
