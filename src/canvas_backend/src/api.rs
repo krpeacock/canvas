@@ -51,6 +51,12 @@ pub fn check_cooldown() -> u64 {
 
 #[candid_method(query)]
 #[query]
+pub fn cycles() -> u64 {
+    return ic_cdk::api::canister_balance();
+}
+
+#[candid_method(query)]
+#[query]
 pub fn http_request(request: HttpRequest) -> HttpResponse {
     // /tile.<tile_idx>.png
     let resp = if request.url.starts_with("/tile.") {
