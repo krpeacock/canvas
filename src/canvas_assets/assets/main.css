@@ -11,6 +11,10 @@ main {
     min-height: 100vh;
 }
 
+.toast-container {
+    font-size: 14px;
+}
+
 figure {
     margin: 0; 
     padding: 0;

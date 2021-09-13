@@ -83,5 +83,4 @@ export const refreshTile = async (tileIdx: number) => {
   document.body.appendChild(hiddenContainer);
 
   await loadPromise;
-  console.log("successfully refreshed canvas");
 };

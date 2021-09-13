@@ -1,11 +1,13 @@
 use std::{collections::HashMap, time::Duration};
 
+pub const COOLDOWN: u64 = 10;
+
 use crate::api::{
     Color, Position, NO_TILES, OVERVIEW_IMAGE_SIZE, OVERVIEW_TILE_SIZE, ROW_LENGTH, TILE_SIZE,
 };
 use ic_cdk::export::Principal;
 use image::{
-    imageops::{self, replace, FilterType},
+    imageops::{replace},
     DynamicImage, Rgba, RgbaImage,
 };
 
@@ -118,7 +120,7 @@ impl EditsState {
     pub fn register_edit(&mut self, principal: Principal, current_time: u64) -> Result<(), &str> {
         let last_edit = self.edits.get(&principal);
         if last_edit.is_none()
-            || Duration::from_secs(30) < Duration::from_nanos(current_time - last_edit.unwrap())
+            || Duration::from_secs(COOLDOWN) < Duration::from_nanos(current_time - last_edit.unwrap())
         {
             self.edits.insert(principal, current_time);
             Ok(())

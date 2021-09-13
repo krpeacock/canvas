@@ -1,11 +1,11 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   Provider as SpectrumProvider,
   defaultTheme,
   Flex,
   Header,
 } from "@adobe/react-spectrum";
-import Canvases from "./Canvases";
+import Canvases, { canvasSize } from "./Canvases";
 import { AuthClient } from "@dfinity/auth-client";
 import { ActorSubclass } from "@dfinity/agent";
 import {
@@ -19,8 +19,11 @@ import LoginSection from "./LoginSection";
 import { useState } from "react";
 import { Toaster } from "react-hot-toast";
 import { Principal } from "@dfinity/principal";
+import { canvas_backend } from "../../declarations/canvas_backend";
 
 interface Props {}
+
+const DEFAULT_COOLDOWN = 30;
 
 export const AppContext = React.createContext<{
   authClient?: AuthClient;
@@ -36,6 +39,7 @@ export const AppContext = React.createContext<{
   setAbsolutePosition?: React.Dispatch<React.SetStateAction<Position>>;
   color: Color;
   setColor?: React.Dispatch<React.SetStateAction<Color>>;
+  cooldown: number;
 }>({
   login: async () => {},
   logout: () => {},
@@ -47,6 +51,7 @@ export const AppContext = React.createContext<{
     b: 77,
     a: 255,
   },
+  cooldown: DEFAULT_COOLDOWN,
 });
 
 function App(props: Props) {
@@ -60,9 +65,10 @@ function App(props: Props) {
     actor,
   } = useAuthClient();
   const [position, setPosition] = useState<Position>({ x: 0, y: 0 });
+  const [cooldown, setCooldown] = useState<number>(DEFAULT_COOLDOWN);
   const [absolutePosition, setAbsolutePosition] = useState<Position>({
-    x: 0,
-    y: 0,
+    x: canvasSize / 32,
+    y: canvasSize / 32,
   });
   const [color, setColor] = useState<Color>({
     r: 34,
@@ -70,13 +76,21 @@ function App(props: Props) {
     b: 77,
     a: 100,
   });
+
+  useEffect(() => {
+    canvas_backend.check_cooldown().then((cd) => {
+      setCooldown(Number(cd));
+    });
+  }, []);
+
   return (
     <>
       <Toaster
         toastOptions={{
           duration: 5000,
-          position: "bottom-center",
+          position: "top-center",
         }}
+        containerClassName="toast-container"
       />
       <SpectrumProvider theme={defaultTheme}>
         <AppContext.Provider
@@ -94,11 +108,13 @@ function App(props: Props) {
             setAbsolutePosition,
             color,
             setColor,
+            cooldown,
           }}
         >
           <Header>
             <Flex
               direction="row"
+              wrap
               justifyContent="space-between"
               margin="0 1rem"
             >
@@ -122,6 +138,7 @@ function App(props: Props) {
                 wrap="wrap"
                 justifyContent="start"
                 alignItems="start"
+                marginBottom="3rem"
                 gap="3rem"
               >
                 <div>

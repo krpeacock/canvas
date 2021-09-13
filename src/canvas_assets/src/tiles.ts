@@ -80,9 +80,9 @@ let testCases = [
     }
 ]
 
-testCases.forEach((tc, idx) => {
-    let got = new Focus(new Position(tc.x, tc.y)).tiles();
-    if (got.length !== tc.expected.length || !got.every((v, idx) => tc.expected[idx] === v)) {
-        console.log(`testcase number ${idx} failed, got ${got}, expected ${tc.expected}`);
-    }
-});
+// testCases.forEach((tc, idx) => {
+//     let got = new Focus(new Position(tc.x, tc.y)).tiles();
+//     if (got.length !== tc.expected.length || !got.every((v, idx) => tc.expected[idx] === v)) {
+//         console.log(`testcase number ${idx} failed, got ${got}, expected ${tc.expected}`);
+//     }
+// });

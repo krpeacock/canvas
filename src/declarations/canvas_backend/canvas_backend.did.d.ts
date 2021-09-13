@@ -18,6 +18,7 @@ export interface HttpResponse {
 }
 export interface Position { 'x' : number, 'y' : number }
 export interface _SERVICE {
+  'check_cooldown' : () => Promise<bigint>,
   'http_request' : (arg_0: HttpRequest) => Promise<HttpResponse>,
   'update_pixel' : (arg_0: number, arg_1: Position, arg_2: Color) => Promise<
       undefined

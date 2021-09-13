@@ -14,4 +14,5 @@ type Position = record { x : nat32; y : nat32 };
 service : {
   http_request : (HttpRequest) -> (HttpResponse) query;
   update_pixel : (nat32, Position, Color) -> ();
+  check_cooldown : () -> (nat64);
 }

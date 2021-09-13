@@ -136,9 +136,10 @@ const SubView = styled.section`
   }
 `;
 
+export const canvasSize = 1024;
+
 interface Props {}
 function Canvases(props: Props) {
-  const canvasSize = 1024;
   const {} = props;
   const [canvas2Scale, setCanvas2Scale] = useState(1);
   const imgRef = createRef<HTMLImageElement>();
@@ -176,13 +177,21 @@ function Canvases(props: Props) {
     const selection = document.querySelector("#selection") as HTMLDivElement;
     assert(selection);
 
+    const relativePosition = {
+      x: absolutePosition.x - position.x,
+      y: absolutePosition.y - position.y,
+    };
+
     const [x, y] = selection.style.transform
       .slice(10, selection.style.transform.length - 1)
       .split(", ")
       .map((substr) => Number(substr.split("px")[0]));
 
-    setPosition?.({ y, x });
-    setAbsolutePosition?.({ y, x });
+    setPosition?.({ x, y });
+    setAbsolutePosition?.({
+      x: x + relativePosition.x,
+      y: y + relativePosition.y,
+    });
   }
 
   function handleClick(e: React.MouseEvent) {
@@ -293,10 +302,13 @@ function Canvases(props: Props) {
             bounds={{
               left: 0,
               top: 0,
-              bottom: 256 * canvas2Scale - 6,
-              right: 256 * canvas2Scale - 6,
+              bottom: 256 * canvas2Scale - 3 * canvas2Scale,
+              right: 256 * canvas2Scale - 3 * canvas2Scale,
             }}
-            defaultPosition={{ x: 256 * canvas2Scale, y: 256 * canvas2Scale }}
+            defaultPosition={{
+              x: canvas2Scale === 1 ? 128 : canvas2Scale * 256,
+              y: canvas2Scale === 1 ? 128 : canvas2Scale * 256,
+            }}
             onStop={handlePixel}
           >
             <button id="pixelWrapper" type="button">
@@ -316,26 +328,29 @@ function Canvases(props: Props) {
           backgroundColor="static-white"
           padding="1rem"
         >
-          <Heading level={3}>
-            <span style={{ color: "black" }}>Coordinates</span>
-          </Heading>
-          <p style={{ color: "black" }} key={position.x + position.y}>
-            <code>{JSON.stringify(absolutePosition)}</code>
-          </p>
-          <SketchPicker
-            color={color}
-            disableAlpha
-            onChange={(color) => {
-              // map from percent to u8 byte value
-              const aValue = color.rgb.a ? color.rgb.a : 255;
-              setColor?.({ ...color.rgb, a: aValue });
-            }}
-          ></SketchPicker>
-          <p style={{ color: "black", maxWidth: "400px" }}>
-            Use the Color Selector to choose the color for your pixel, and drag
-            the cursor to your chosen location. Press Submit When you are ready!
-          </p>
-          <Submit handleDrop={handleDrop} renderCanvas2={renderCanvas2} />
+          <Flex direction={canvas2Scale === 1 ? "column-reverse" : "column"}>
+            <Heading level={3}>
+              <span style={{ color: "black" }}>Coordinates</span>
+            </Heading>
+            <p style={{ color: "black" }} key={position.x + position.y}>
+              <code>{JSON.stringify(absolutePosition)}</code>
+            </p>
+            <SketchPicker
+              color={color}
+              disableAlpha
+              onChange={(color) => {
+                // map from percent to u8 byte value
+                const aValue = color.rgb.a ? color.rgb.a : 255;
+                setColor?.({ ...color.rgb, a: aValue });
+              }}
+            ></SketchPicker>
+            <p style={{ color: "black", maxWidth: "400px" }}>
+              Use the Color Selector to choose the color for your pixel, and
+              drag the cursor to your chosen location. Press Submit When you are
+              ready!
+            </p>
+            <Submit handleDrop={handleDrop} renderCanvas2={renderCanvas2} />
+          </Flex>
         </View>
       </Flex>
     </Wrapper>

@@ -6,7 +6,7 @@ use ic_cdk_macros::*;
 
 use crate::{
     http_request::{HeaderField, HttpRequest, HttpResponse},
-    state::{CanvasState, EditsState},
+    state::{CanvasState, EditsState, COOLDOWN},
 };
 
 /// All images have square shape and the side length must be a power of 2.
@@ -29,6 +29,12 @@ pub struct Color {
     pub g: u8,
     pub b: u8,
     pub a: u8,
+}
+
+#[candid_method(query)]
+#[query]
+pub fn check_cooldown() -> u64 {
+    return COOLDOWN;
 }
 
 #[candid_method(query)]
