@@ -6,6 +6,7 @@ use ic_cdk::{
     storage,
 };
 use ic_cdk_macros::*;
+use image::{GenericImageView, Pixel};
 
 use crate::{
     http_request::{HeaderField, HttpRequest, HttpResponse},
@@ -148,21 +149,24 @@ fn canister_post_upgrade() {
         canvas_state.raw_overview = image::load_from_memory(&overview).unwrap();
 
         // Update one pixel to complete refresh of preview
-        let x :u32 = 0;
-        let y :u32 = 0;
+        let x: u32 = 0;
+        let y: u32 = 0;
         let pos = Position { x, y };
-        let color = Color {
-            r: 255,
-            g: 255,
-            b: 255,
-            a: 255,
-        };
-        canvas_state.update_pixel(0, pos, color);
+        canvas_state.update_pixel(
+            0,
+            pos,
+            Color {
+                r: canvas_state.raw_overview.get_pixel(x, y).to_rgba().0[0],
+                g: canvas_state.raw_overview.get_pixel(x, y).to_rgba().0[1],
+                b: canvas_state.raw_overview.get_pixel(x, y).to_rgba().0[2],
+                a: canvas_state.raw_overview.get_pixel(x, y).to_rgba().0[3],
+            },
+        );
 
         // TODO: To reset the start time, uncomment, deploy, comment out again, and redeploy.
         // edits_state.start = None;
     } else {
-        ic_cdk::println!("failed to restore state...");
+        ic_cdk::println!("failed to restore state.");
     }
 }
 

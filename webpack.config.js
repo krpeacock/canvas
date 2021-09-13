@@ -95,7 +95,7 @@ module.exports = {
       NODE_ENV: "development",
       CANVAS_BACKEND_CANISTER_ID: canisters["canvas_backend"],
       II_URL: isDevelopment
-        ? "http://localhost:8000?canisterId=rrkah-fqaaa-aaaaa-aaaaq-cai#authorize"
+        ? "http://localhost:8000?canisterId=r7inp-6aaaa-aaaaa-aaabq-cai#authorize"
         : "https://identity.ic0.app/#authorize",
     }),
     new webpack.ProvidePlugin({
