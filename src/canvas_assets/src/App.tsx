@@ -20,6 +20,7 @@ import { useState } from "react";
 import { Toaster } from "react-hot-toast";
 import { Principal } from "@dfinity/principal";
 import { canvas_backend } from "../../declarations/canvas_backend";
+import { page_visits } from "../../declarations/page_visits";
 
 interface Props {}
 
@@ -81,6 +82,15 @@ function App(props: Props) {
     canvas_backend.check_cooldown().then((cd) => {
       setCooldown(Number(cd));
     });
+    const deviceType =
+      /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+        navigator.userAgent
+      )
+        ? { Mobile: null }
+        : { Desktop: null };
+    if (!window.location.origin.includes("localhost")) {
+      page_visits.log(window.location.href, deviceType);
+    }
   }, []);
 
   return (
@@ -155,16 +165,20 @@ function App(props: Props) {
                     of the primary canvas. You can use the round cursor to
                     select the pixel you would like to update. You can update
                     the color you want to use with the color picker, and then
-                    you can submit your pixel to the canvas!
+                    you can submit your pixel to the canvas! Everything you see,
+                    from the image to the website you're interacting with is
+                    running on the Internet Computer. Updates are free - there
+                    are no gas costs to participate.
                   </p>
                   <p>
                     This experiment will start fresh on Monday, September 13th,
                     and will run for a week. Every participant will recieve a
                     single pixel as an NFT at the end of the experiment, and we
                     will auction off the final image as an NFT, with half the
-                    proceeds going to the hackathon team, and half going to the{" "}
-                    <a href="icproject.org">Infinite Charity Project</a>. Have
-                    fun!
+                    proceeds going to the hackathon team, and half going to
+                    environmental charity. Logging in with the Internet Identity
+                    is secure and anonymous, and is how we will reward you with
+                    your NFT pixel after the canvas is complete. Have fun!
                   </p>
                 </div>
                 <Canvases />

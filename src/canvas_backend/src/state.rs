@@ -1,4 +1,7 @@
-use std::{collections::HashMap, time::Duration};
+use std::{
+    collections::{HashMap, HashSet},
+    time::Duration,
+};
 
 pub const COOLDOWN: u64 = 10;
 
@@ -6,10 +9,8 @@ use crate::api::{
     Color, Position, NO_TILES, OVERVIEW_IMAGE_SIZE, OVERVIEW_TILE_SIZE, ROW_LENGTH, TILE_SIZE,
 };
 use ic_cdk::export::Principal;
-use image::{
-    imageops::{replace},
-    DynamicImage, Rgba, RgbaImage,
-};
+use image::{imageops::replace, DynamicImage, Rgba, RgbaImage};
+use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug)]
 pub struct CanvasState {
@@ -64,8 +65,8 @@ impl CanvasState {
     pub fn update_pixel(&mut self, tile_idx: u32, pos: Position, color: Color) {
         let tile_idx = tile_idx as usize;
         let Position { x, y } = pos;
-        let Color { r, g, b, a } = color;
-        let rgba = Rgba([r, g, b, a]);
+        let Color { r, g, b, .. } = color;
+        let rgba = Rgba([r, g, b, 255]);
         // update tile
         let raw_tile = self
             .raw_tiles
@@ -104,10 +105,14 @@ fn get_tile_offset(tile_idx: usize) -> (u32, u32) {
     (x, y)
 }
 
-#[derive(Clone, Debug, Default)]
+// 7 days
+const EXPERIMENT_DURATION: u64 = Duration::from_secs(604800).as_nanos() as u64;
+
+#[derive(Clone, Debug, Default, Serialize, Deserialize)]
 pub struct EditsState {
-    start: Option<u64>,
-    edits: HashMap<Principal, u64>,
+    pub start: Option<u64>,
+    pub edits: HashMap<Principal, u64>,
+    pub pixel_requested: HashSet<Principal>,
 }
 
 impl EditsState {
@@ -118,9 +123,11 @@ impl EditsState {
     }
 
     pub fn register_edit(&mut self, principal: Principal, current_time: u64) -> Result<(), &str> {
+        self.start().ok();
         let last_edit = self.edits.get(&principal);
         if last_edit.is_none()
-            || Duration::from_secs(COOLDOWN) < Duration::from_nanos(current_time - last_edit.unwrap())
+            || Duration::from_secs(COOLDOWN)
+                < Duration::from_nanos(current_time - last_edit.unwrap())
         {
             self.edits.insert(principal, current_time);
             Ok(())
@@ -136,6 +143,13 @@ impl EditsState {
             self.start = Some(ic_cdk::api::time());
             Ok(())
         }
+    }
+
+    pub fn time_left(&self) -> u64 {
+        std::cmp::max(
+            0,
+            self.start.unwrap() + EXPERIMENT_DURATION - ic_cdk::api::time(),
+        )
     }
 }
 

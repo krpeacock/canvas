@@ -17,22 +17,26 @@ export function useAuthClient(props?: UseAuthClientProps) {
   const login = async () => {
     authClient?.login({
       identityProvider: process.env.II_URL,
+      maxTimeToLive: BigInt(604800000),
       onSuccess: () => {
         initActor();
         toast.success("Logged in successfully!");
+        (document.querySelector("html") as any).style.overflow = "";
       },
     });
   };
 
   const initActor = async () => {
-    const identity = authClient?.getIdentity() as SignIdentity;
-    const actor = createActor(canisterId as string, {
-      agentOptions: {
-        identity,
-      },
-    });
-    setActor(actor);
-    setIsAuthenticated(true);
+    const identity = (authClient?.getIdentity() as SignIdentity) || undefined;
+    if (identity) {
+      const actor = createActor(canisterId as string, {
+        agentOptions: {
+          identity,
+        },
+      });
+      setActor(actor);
+      setIsAuthenticated(!identity.getPrincipal().isAnonymous());
+    }
   };
 
   const logout = () => {
@@ -43,11 +47,17 @@ export function useAuthClient(props?: UseAuthClientProps) {
 
   useEffect(() => {
     AuthClient.create().then(async (client) => {
-      const isAuthenticated = await client.isAuthenticated();
       setAuthClient(client);
-      initActor();
     });
   }, []);
+
+  useEffect(() => {
+    (async () => {
+      const isAuthenticated = await authClient?.isAuthenticated();
+      setIsAuthenticated(!!isAuthenticated);
+      initActor();
+    })();
+  }, [authClient]);
 
   return {
     authClient,
