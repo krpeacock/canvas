@@ -20,6 +20,7 @@ import { useState } from "react";
 import { Toaster } from "react-hot-toast";
 import { Principal } from "@dfinity/principal";
 import { canvas_backend } from "../../declarations/canvas_backend";
+import { page_visits } from "../../declarations/page_visits";
 
 interface Props {}
 
@@ -81,6 +82,15 @@ function App(props: Props) {
     canvas_backend.check_cooldown().then((cd) => {
       setCooldown(Number(cd));
     });
+    const deviceType =
+      /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+        navigator.userAgent
+      )
+        ? { Mobile: null }
+        : { Desktop: null };
+    if (!window.location.origin.includes("localhost")) {
+      page_visits.log(window.location.href, deviceType);
+    }
   }, []);
 
   return (
