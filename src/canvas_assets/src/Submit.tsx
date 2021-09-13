@@ -107,7 +107,7 @@ function Submit(props: { handleDrop: any; renderCanvas2: any }) {
             cancelLabel="cancel"
             isPrimaryActionDisabled={!isAuthenticated}
             width="size-500"
-            isHidden={!isConfirmDisabled && isAuthenticated}
+            isHidden={!isConfirmDisabled && !isAuthenticated}
           >
             <Content>
               <p>Ready to go? Your change is:</p>

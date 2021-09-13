@@ -1,5 +1,8 @@
 use ic_cdk::{
-    export::candid::{candid_method, export_service, CandidType, Deserialize},
+    export::{
+        candid::{candid_method, export_service, CandidType},
+        Principal,
+    },
     storage,
 };
 use ic_cdk_macros::*;
@@ -8,6 +11,8 @@ use crate::{
     http_request::{HeaderField, HttpRequest, HttpResponse},
     state::{CanvasState, EditsState, COOLDOWN},
 };
+use serde::Deserialize;
+use std::collections::{HashMap, HashSet};
 
 /// All images have square shape and the side length must be a power of 2.
 pub const IMAGE_SIZE: u32 = 1024;
@@ -29,6 +34,12 @@ pub struct Color {
     pub g: u8,
     pub b: u8,
     pub a: u8,
+}
+
+#[candid_method(query)]
+#[query]
+pub fn time_left() -> u64 {
+    storage::get::<EditsState>().time_left()
 }
 
 #[candid_method(query)]
@@ -96,7 +107,51 @@ fn update_pixel(tile_idx: u32, pos: Position, color: Color) {
 fn init() {
     let _canvas = storage::get_mut::<CanvasState>();
     let _edits = storage::get_mut::<EditsState>();
-    _edits.start().ok();
+    ic_cdk::println!("initializing...");
+}
+
+#[export_name = "canister_pre_upgrade"]
+fn canister_pre_upgrade() {
+    ic_cdk::println!("Executing pre upgrade");
+    let edits = storage::get::<EditsState>();
+    let canvas = storage::get::<CanvasState>();
+    storage::stable_save((
+        edits.edits.clone(),
+        edits.start.clone(),
+        edits.pixel_requested.clone(),
+        canvas.tile_images.clone(),
+        canvas.overview_image.clone(),
+    ))
+    .ok();
+}
+
+#[export_name = "canister_post_upgrade"]
+fn canister_post_upgrade() {
+    ic_cdk::println!("Executing post upgrade");
+
+    let edits_state = storage::get_mut::<EditsState>();
+    let canvas_state = storage::get_mut::<CanvasState>();
+    if let Ok((edits, start, pixel_requested, tiles, overview)) = storage::stable_restore::<(
+        HashMap<Principal, u64>,
+        Option<u64>,
+        HashSet<Principal>,
+        Vec<Vec<u8>>,
+        Vec<u8>,
+    )>() {
+        edits_state.start = start;
+        edits_state.edits = edits;
+        edits_state.pixel_requested = pixel_requested;
+        canvas_state.raw_tiles = tiles
+            .iter()
+            .map(|t| image::load_from_memory(t).unwrap())
+            .collect();
+        canvas_state.raw_overview = image::load_from_memory(&overview).unwrap();
+
+        // TODO: To reset the start time, uncomment, deploy, comment out again, and redeploy.
+        // edits_state.start = None;
+    } else {
+        ic_cdk::println!("failed to restore state...");
+    }
 }
 
 fn png_header_fields(body: &[u8]) -> Vec<HeaderField> {
