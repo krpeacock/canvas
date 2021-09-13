@@ -45,6 +45,7 @@ function Submit(props: { handleDrop: any; renderCanvas2: any }) {
   };
 
   const submit = async () => {
+    console.log(actor);
     if (!absolutePosition || !color || !actor) {
       throw new Error("Requires a position and color");
     }
@@ -80,7 +81,8 @@ function Submit(props: { handleDrop: any; renderCanvas2: any }) {
     <DialogTrigger
       isOpen={dialogOpen}
       onOpenChange={(isOpen) => {
-        if (isConfirmDisabled) setDialogOpen(false);
+        if (!isAuthenticated) setDialogOpen(isOpen);
+        else if (isConfirmDisabled) setDialogOpen(false);
         else setDialogOpen(isOpen);
       }}
     >
@@ -107,7 +109,7 @@ function Submit(props: { handleDrop: any; renderCanvas2: any }) {
             cancelLabel="cancel"
             isPrimaryActionDisabled={!isAuthenticated}
             width="size-500"
-            isHidden={!isConfirmDisabled && !isAuthenticated}
+            isHidden={isConfirmDisabled && !isAuthenticated}
           >
             <Content>
               <p>Ready to go? Your change is:</p>
@@ -132,8 +134,8 @@ function Submit(props: { handleDrop: any; renderCanvas2: any }) {
                       <Button
                         variant="cta"
                         onPress={() => {
-                          document.getElementById("loginButton")?.click();
                           close();
+                          document.getElementById("loginButton")?.click();
                         }}
                       >
                         Log In

@@ -329,12 +329,14 @@ function Canvases(props: Props) {
           padding="1rem"
         >
           <Flex direction={canvas2Scale === 1 ? "column-reverse" : "column"}>
-            <Heading level={3}>
-              <span style={{ color: "black" }}>Coordinates</span>
-            </Heading>
-            <p style={{ color: "black" }} key={position.x + position.y}>
-              <code>{JSON.stringify(absolutePosition)}</code>
-            </p>
+            <div>
+              <Heading level={3}>
+                <span style={{ color: "black" }}>Coordinates</span>
+              </Heading>
+              <p style={{ color: "black" }} key={position.x + position.y}>
+                <code>{JSON.stringify(absolutePosition)}</code>
+              </p>
+            </div>
             <SketchPicker
               color={color}
               disableAlpha
