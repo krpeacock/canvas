@@ -9,7 +9,7 @@ use crate::api::{
     Color, Position, NO_TILES, OVERVIEW_IMAGE_SIZE, OVERVIEW_TILE_SIZE, ROW_LENGTH, TILE_SIZE,
 };
 use ic_cdk::export::Principal;
-use image::{imageops::replace, DynamicImage, Rgba, RgbaImage};
+use image::{DynamicImage, Rgba, RgbaImage};
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug)]
@@ -74,7 +74,10 @@ impl CanvasState {
             .expect("Invalid tile index.");
         raw_tile.as_mut_rgba8().unwrap().put_pixel(x, y, rgba);
         let (ovw_x, ovw_y) = get_tile_offset(tile_idx);
-        replace(&mut self.raw_overview, raw_tile, ovw_x, ovw_y);
+        self.raw_overview
+            .as_mut_rgba8()
+            .unwrap()
+            .put_pixel(ovw_x + x, ovw_y + y, rgba);
 
         let mut bytes: Vec<u8> = Vec::new();
         raw_tile
@@ -84,7 +87,9 @@ impl CanvasState {
             .tile_images
             .get_mut(tile_idx)
             .expect("Invalid tile index.") = bytes;
+    }
 
+    pub fn update_overview(&mut self) {
         let mut bytes: Vec<u8> = Vec::new();
         self.raw_overview
             .write_to(&mut bytes, image::ImageOutputFormat::Png)

@@ -105,6 +105,16 @@ pub fn http_request(request: HttpRequest) -> HttpResponse {
 
 #[candid_method(update)]
 #[update]
+fn update_overview() {
+    if ic_cdk::caller().to_string() != "TODO" {
+        return;
+    }
+    let canvas = storage::get_mut::<CanvasState>();
+    canvas.update_overview();
+}
+
+#[candid_method(update)]
+#[update]
 fn update_pixel(tile_idx: u32, pos: Position, color: Color) {
     let canvas = storage::get_mut::<CanvasState>();
     let edits = storage::get_mut::<EditsState>();
@@ -127,7 +137,8 @@ fn init() {
 fn canister_pre_upgrade() {
     ic_cdk::println!("Executing pre upgrade");
     let edits = storage::get::<EditsState>();
-    let canvas = storage::get::<CanvasState>();
+    let canvas = storage::get_mut::<CanvasState>();
+    canvas.update_overview();
     storage::stable_save((
         edits.edits.clone(),
         edits.start.clone(),
@@ -174,6 +185,7 @@ fn canister_post_upgrade() {
                 a: canvas_state.raw_overview.get_pixel(x, y).to_rgba().0[3],
             },
         );
+        canvas_state.update_overview();
 
         // TODO: To reset the start time, uncomment, deploy, comment out again, and redeploy.
         // edits_state.start = None;
