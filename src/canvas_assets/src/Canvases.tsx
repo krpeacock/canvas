@@ -170,11 +170,11 @@ function Canvases(props: Props) {
       const canvas = document.getElementById("canvas1") as HTMLCanvasElement;
       const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
       ctx.drawImage(fullsize, 0, 0);
-      handleDrop();
+      Promise.resolve(handleDrop()).then(result => result);
     }
   }
 
-  function handleDrop() {
+  async function handleDrop() {
     const selection = document.querySelector("#selection") as HTMLDivElement;
     assert(selection);
 
@@ -188,7 +188,7 @@ function Canvases(props: Props) {
       .split(", ")
       .map((substr) => Number(substr.split("px")[0]));
 
-    // await Promise.all(new Focus(new Position(x, y)).tiles().map(t => refreshTile(t)));
+    await Promise.all(new Focus(new Position(x, y)).tiles().map(t => refreshTile(t)));
     setPosition?.({ x, y });
     setAbsolutePosition?.({
       x: x + relativePosition.x,
@@ -288,7 +288,7 @@ function Canvases(props: Props) {
             right: canvasSize - 64,
             bottom: canvasSize - 64,
           }}
-          onStop={handleDrop}
+          onStop={() => { Promise.resolve(handleDrop()).then(result => result); }}
         >
           <div id="selection"></div>
         </Draggable>

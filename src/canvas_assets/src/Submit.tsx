@@ -59,7 +59,7 @@ function Submit(props: { handleDrop: any; renderCanvas2: any }) {
       .then(async () => {
         toast.success(`Submitted! You can play again in ${cooldown} seconds`);
         await refreshTile(tileIdx);
-        handleDrop();
+        await handleDrop();
         renderCanvas2();
       })
       .catch((err) => {
