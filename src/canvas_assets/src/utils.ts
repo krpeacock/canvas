@@ -1,7 +1,7 @@
 import { canvas_backend } from "../../declarations/canvas_backend";
 import { Position } from "../../declarations/canvas_backend/canvas_backend.did";
 
-function hexToRgb(hex: string): { r: number; g: number; b: number } {
+export function hexToRgb(hex: string): { r: number; g: number; b: number } {
   var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
   if (!result) throw new Error(`could not parse hex ${hex}`);
   return {
@@ -10,6 +10,16 @@ function hexToRgb(hex: string): { r: number; g: number; b: number } {
     b: parseInt(result[3], 16),
   };
 }
+
+function componentToHex(c: number) {
+  var hex = c.toString(16);
+  return hex.length == 1 ? "0" + hex : hex;
+}
+
+export function rgbToHex(r: number, g: number, b: number) {
+  return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
+}
+
 
 const TILE_SIZE = 64;
 const ROW_LENGTH = 16;
