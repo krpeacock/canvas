@@ -144,8 +144,6 @@ fn canister_post_upgrade() {
 
     let edits_state = storage::get_mut::<EditsState>();
     let canvas_state = storage::get_mut::<CanvasState>();
-    restore_canvas(canvas_state);
-    return;
 
     if let Ok((edits, start, pixel_requested, tiles, overview)) = storage::stable_restore::<(
         HashMap<Principal, u64>,
@@ -157,26 +155,29 @@ fn canister_post_upgrade() {
         edits_state.start = start;
         edits_state.edits = edits;
         edits_state.pixel_requested = pixel_requested;
-        canvas_state.raw_tiles = tiles
-            .iter()
-            .map(|t| image::load_from_memory(t).unwrap())
-            .collect();
-        canvas_state.raw_overview = image::load_from_memory(&overview).unwrap();
+        restore_canvas(canvas_state);
+        return;
 
-        // Update one pixel to complete refresh of preview
-        let x: u32 = 0;
-        let y: u32 = 0;
-        let pos = Position { x, y };
-        canvas_state.update_pixel(
-            0,
-            pos,
-            Color {
-                r: canvas_state.raw_overview.get_pixel(x, y).to_rgba().0[0],
-                g: canvas_state.raw_overview.get_pixel(x, y).to_rgba().0[1],
-                b: canvas_state.raw_overview.get_pixel(x, y).to_rgba().0[2],
-                a: canvas_state.raw_overview.get_pixel(x, y).to_rgba().0[3],
-            },
-        );
+        // canvas_state.raw_tiles = tiles
+        //     .iter()
+        //     .map(|t| image::load_from_memory(t).unwrap())
+        //     .collect();
+        // canvas_state.raw_overview = image::load_from_memory(&overview).unwrap();
+
+        // // Update one pixel to complete refresh of preview
+        // let x: u32 = 0;
+        // let y: u32 = 0;
+        // let pos = Position { x, y };
+        // canvas_state.update_pixel(
+        //     0,
+        //     pos,
+        //     Color {
+        //         r: canvas_state.raw_overview.get_pixel(x, y).to_rgba().0[0],
+        //         g: canvas_state.raw_overview.get_pixel(x, y).to_rgba().0[1],
+        //         b: canvas_state.raw_overview.get_pixel(x, y).to_rgba().0[2],
+        //         a: canvas_state.raw_overview.get_pixel(x, y).to_rgba().0[3],
+        //     },
+        // );
 
         // TODO: To reset the start time, uncomment, deploy, comment out again, and redeploy.
         // edits_state.start = None;
