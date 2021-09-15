@@ -55,7 +55,8 @@ pub fn cycles() -> u64 {
     return ic_cdk::api::canister_balance();
 }
 
-// Don't share this with the candid interface
+#[candid_method(query)]
+#[query]
 pub fn backup_edits() -> HashMap<ic_cdk::export::Principal, u64> {
     let edits = storage::get::<EditsState>();
     return edits.edits.clone();
