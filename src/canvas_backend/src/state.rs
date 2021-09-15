@@ -3,7 +3,7 @@ use std::{
     time::Duration,
 };
 
-pub const COOLDOWN: u64 = 10;
+pub const COOLDOWN: u64 = 5;
 
 use crate::api::{
     Color, Position, NO_TILES, OVERVIEW_IMAGE_SIZE, OVERVIEW_TILE_SIZE, ROW_LENGTH, TILE_SIZE,
