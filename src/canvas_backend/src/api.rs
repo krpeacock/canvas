@@ -144,6 +144,9 @@ fn canister_post_upgrade() {
 
     let edits_state = storage::get_mut::<EditsState>();
     let canvas_state = storage::get_mut::<CanvasState>();
+    restore_canvas(canvas_state);
+    return;
+
     if let Ok((edits, start, pixel_requested, tiles, overview)) = storage::stable_restore::<(
         HashMap<Principal, u64>,
         Option<u64>,
@@ -179,7 +182,27 @@ fn canister_post_upgrade() {
         // edits_state.start = None;
     } else {
         ic_cdk::println!("failed to restore state.");
-    }
+    };
+}
+
+fn restore_canvas(canvas: &mut CanvasState) {
+    // let canvas = storage::get_mut::<CanvasState>();
+    let image = include_bytes!("backup.png");
+    canvas.raw_overview = image::load_from_memory(image).unwrap();
+    canvas.overview_image = image.to_vec();
+    canvas.tile_images = vec![];
+    canvas.raw_tiles = vec![];
+    (0..256).for_each(|i| {
+        let (x, y) = super::state::get_tile_offset(i);
+        let raw_tile = canvas.raw_overview.crop_imm(x, y, 64, 64);
+        canvas.raw_tiles.push(raw_tile.clone());
+
+        let mut bytes: Vec<u8> = Vec::new();
+        raw_tile
+            .write_to(&mut bytes, image::ImageOutputFormat::Png)
+            .expect("Could not encode tile as PNG!");
+        canvas.tile_images.push(bytes);
+    });
 }
 
 fn png_header_fields(body: &[u8]) -> Vec<HeaderField> {
