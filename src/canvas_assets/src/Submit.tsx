@@ -55,9 +55,18 @@ function Submit(props: { handleDrop: any; renderCanvas2: any }) {
     const { tileIdx, relativePosition } =
       getTileAndRelativePosition(absolutePosition);
     actor
-      .update_pixel(tileIdx, relativePosition, { ...color, a: 255 })
+      .update_pixel({
+        tile_idx: tileIdx,
+        pos: relativePosition,
+        color: { ...color, a: 255 },
+      })
       .then(async () => {
-        toast.success(`Submitted! You can play again in ${cooldown} second${cooldown === 1 ? "" : "s"}`, {duration: 3000});
+        toast.success(
+          `Submitted! You can play again in ${cooldown} second${
+            cooldown === 1 ? "" : "s"
+          }`,
+          { duration: 3000 }
+        );
         await refreshTile(tileIdx);
         await handleDrop();
         renderCanvas2();

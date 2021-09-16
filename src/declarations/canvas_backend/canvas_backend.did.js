@@ -17,11 +17,18 @@ export const idlFactory = ({ IDL }) => {
     'g' : IDL.Nat8,
     'r' : IDL.Nat8,
   });
+  const PixelUpdate = IDL.Record({
+    'pos' : Position,
+    'color' : Color,
+    'tile_idx' : IDL.Nat32,
+  });
   return IDL.Service({
     'check_cooldown' : IDL.Func([], [IDL.Nat64], ['query']),
+    'cycles' : IDL.Func([], [IDL.Nat64], ['query']),
     'http_request' : IDL.Func([HttpRequest], [HttpResponse], ['query']),
     'time_left' : IDL.Func([], [IDL.Nat64], ['query']),
-    'update_pixel' : IDL.Func([IDL.Nat32, Position, Color], [], []),
+    'update_overview' : IDL.Func([], [], []),
+    'update_pixel' : IDL.Func([PixelUpdate], [], []),
   });
 };
 export const init = ({ IDL }) => { return []; };

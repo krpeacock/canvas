@@ -113,16 +113,21 @@ fn update_overview() {
     canvas.update_overview();
 }
 
+#[derive(Clone, Debug, Default, CandidType, Deserialize)]
+struct PixelUpdate {
+    tile_idx: u32, pos: Position, color: Color
+}
+
 #[candid_method(update)]
 #[update]
-fn update_pixel(tile_idx: u32, pos: Position, color: Color) {
+fn update_pixel(pixel: PixelUpdate) {
     let canvas = storage::get_mut::<CanvasState>();
     let edits = storage::get_mut::<EditsState>();
     if edits
         .register_edit(ic_cdk::caller(), ic_cdk::api::time())
         .is_ok()
     {
-        canvas.update_pixel(tile_idx, pos, color);
+        canvas.update_pixel(pixel.tile_idx, pixel.pos, pixel.color);
     }
 }
 

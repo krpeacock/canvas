@@ -16,12 +16,20 @@ export interface HttpResponse {
   'headers' : Array<[string, string]>,
   'status_code' : number,
 }
-export interface Position { 'x' : number, 'y' : number }
+export interface PixelUpdate {
+  pos: Position;
+  color: Color;
+  tile_idx: number;
+}
+export interface Position {
+  x: number;
+  y: number;
+}
 export interface _SERVICE {
-  'check_cooldown' : () => Promise<bigint>,
-  'http_request' : (arg_0: HttpRequest) => Promise<HttpResponse>,
-  'time_left' : () => Promise<bigint>,
-  'update_pixel' : (arg_0: number, arg_1: Position, arg_2: Color) => Promise<
-      undefined
-    >,
+  check_cooldown: () => Promise<bigint>;
+  cycles: () => Promise<bigint>;
+  http_request: (arg_0: HttpRequest) => Promise<HttpResponse>;
+  time_left: () => Promise<bigint>;
+  update_overview: () => Promise<undefined>;
+  update_pixel: (arg_0: PixelUpdate) => Promise<undefined>;
 }
