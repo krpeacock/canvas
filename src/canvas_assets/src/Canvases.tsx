@@ -8,7 +8,6 @@ import { useContext } from "react";
 import { AppContext } from "./App";
 import { Position, Focus, FOCUS_SIZE } from "./tiles";
 import Submit from "./Submit";
-import { refreshTile } from "./utils";
 
 const DragArea = styled.section<{ tileSize: string }>`
   --tileSize: ${(props) => props.tileSize};
@@ -139,9 +138,9 @@ const SubView = styled.section`
 
 export const canvasSize = 1024;
 
-interface Props { }
+interface Props {}
 function Canvases(props: Props) {
-  const { } = props;
+  const {} = props;
   const [canvas2Scale, setCanvas2Scale] = useState(1);
   const imgRef = createRef<HTMLImageElement>();
 
@@ -170,11 +169,11 @@ function Canvases(props: Props) {
       const canvas = document.getElementById("canvas1") as HTMLCanvasElement;
       const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
       ctx.drawImage(fullsize, 0, 0);
-      Promise.resolve(handleDrop()).then(result => result);
+      handleDrop();
     }
   }
 
-  async function handleDrop() {
+  function handleDrop() {
     const selection = document.querySelector("#selection") as HTMLDivElement;
     assert(selection);
 
@@ -188,7 +187,6 @@ function Canvases(props: Props) {
       .split(", ")
       .map((substr) => Number(substr.split("px")[0]));
 
-    await Promise.all(new Focus(new Position(x, y)).tiles().map(t => refreshTile(t)));
     setPosition?.({ x, y });
     setAbsolutePosition?.({
       x: x + relativePosition.x,
@@ -196,14 +194,13 @@ function Canvases(props: Props) {
     });
   }
 
-  async function handleClick(e: React.MouseEvent) {
+  function handleClick(e: React.MouseEvent) {
     let focus = new Focus(
       new Position(
         e.nativeEvent.offsetX - FOCUS_SIZE / canvas2Scale,
         e.nativeEvent.offsetY - FOCUS_SIZE / canvas2Scale
       )
     );
-    await Promise.all(focus.tiles().map(t => refreshTile(t)));
     setPosition?.({ x: focus.position.x, y: focus.position.y });
   }
 
@@ -288,7 +285,7 @@ function Canvases(props: Props) {
             right: canvasSize - 64,
             bottom: canvasSize - 64,
           }}
-          onStop={() => { Promise.resolve(handleDrop()).then(result => result); }}
+          onStop={handleDrop}
         >
           <div id="selection"></div>
         </Draggable>
