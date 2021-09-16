@@ -6,6 +6,7 @@ import {
   Text,
 } from "@adobe/react-spectrum";
 import RealTimeCustomerProfile from "@spectrum-icons/workflow/RealTimeCustomerProfile";
+import { clear } from "local-storage";
 import React, { useContext, useState } from "react";
 import { AppContext } from "./App";
 
@@ -28,7 +29,12 @@ function LoginSection(props: Props) {
           title="Log in to play!"
           variant="confirmation"
           primaryActionLabel="Internet Identity"
+          secondaryActionLabel="Log Out"
           cancelLabel="Cancel"
+          onSecondaryAction={() => {
+            clear();
+            window.location.reload();
+          }}
           onPrimaryAction={() => {
             login();
             setIsOpen(false);

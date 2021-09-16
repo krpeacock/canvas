@@ -57,7 +57,7 @@ function Submit(props: { handleDrop: any; renderCanvas2: any }) {
     actor
       .update_pixel(tileIdx, relativePosition, { ...color, a: 255 })
       .then(async () => {
-        toast.success(`Submitted! You can play again in ${cooldown} seconds`);
+        toast.success(`Submitted! You can play again in ${cooldown} second${cooldown === 1 ? "" : "s"}`, {duration: 3000});
         await refreshTile(tileIdx);
         await handleDrop();
         renderCanvas2();
@@ -65,7 +65,7 @@ function Submit(props: { handleDrop: any; renderCanvas2: any }) {
       .catch((err) => {
         console.error(err);
         toast.error(
-          `There was a problem submitting your pixel. Make sure you have logged in and have waited ${30} seconds since your last submission!`
+          `There was a problem submitting your pixel. Make sure you have logged in and have waited ${cooldown} seconds since your last submission!`
         );
       })
       .finally(() => {
