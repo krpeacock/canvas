@@ -8,6 +8,7 @@ import { useContext } from "react";
 import { AppContext } from "./App";
 import { Position, Focus, FOCUS_SIZE } from "./tiles";
 import Submit from "./Submit";
+import { hexToRgb, rgbToHex } from "./utils";
 
 const DragArea = styled.section<{ tileSize: string }>`
   --tileSize: ${(props) => props.tileSize};
@@ -337,15 +338,48 @@ function Canvases(props: Props) {
                 <code>{JSON.stringify(absolutePosition)}</code>
               </p>
             </div>
-            <SketchPicker
-              color={color}
-              disableAlpha
-              onChange={(color) => {
-                // map from percent to u8 byte value
-                const aValue = color.rgb.a ? color.rgb.a : 255;
-                setColor?.({ ...color.rgb, a: aValue });
-              }}
-            ></SketchPicker>
+            <Flex direction="row" gap="1rem">
+              <SketchPicker
+                color={color}
+                disableAlpha
+                onChange={(color) => {
+                  // map from percent to u8 byte value
+                  const aValue = color.rgb.a ? color.rgb.a : 255;
+                  setColor?.({ ...color.rgb, a: aValue });
+                }}
+              ></SketchPicker>
+              <View backgroundColor="static-white">
+                <Flex direction="row" wrap gap="1rem">
+                  <input
+                    type="color"
+                    id="html5colorpicker"
+                    onChange={(e) => {
+                      const colorString = e.target.value;
+                      const { r, g, b } = hexToRgb(colorString);
+                      setColor?.({ r, g, b, a: 255 });
+                    }}
+                    value={rgbToHex(color.r, color.g, color.b)}
+                    style={{
+                      width: "32px",
+                      height: "32px",
+                      background: "white",
+                      borderRadius: "4px",
+                      border: "none",
+                      boxShadow:
+                        "rgb(0 0 0 / 15%) 0px 0px 0px 1px, rgb(0 0 0 / 15%) 0px 8px 16px",
+                    }}
+                  />
+                  <label
+                    htmlFor="html5colorpicker"
+                    style={{
+                      color: "black",
+                    }}
+                  >
+                    Html Color Picker & eyedrop
+                  </label>
+                </Flex>
+              </View>
+            </Flex>
             <p style={{ color: "black", maxWidth: "400px" }}>
               Use the Color Selector to choose the color for your pixel, and
               drag the cursor to your chosen location. Press Submit When you are

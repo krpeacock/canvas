@@ -23,6 +23,11 @@ export const idlFactory = ({ IDL }) => {
     'tile_idx' : IDL.Nat32,
   });
   return IDL.Service({
+    'backup_edits' : IDL.Func(
+        [],
+        [IDL.Vec(IDL.Tuple(IDL.Principal, IDL.Nat64))],
+        ['query'],
+      ),
     'check_cooldown' : IDL.Func([], [IDL.Nat64], ['query']),
     'cycles' : IDL.Func([], [IDL.Nat64], ['query']),
     'http_request' : IDL.Func([HttpRequest], [HttpResponse], ['query']),

@@ -13,6 +13,7 @@ type HttpResponse = record {
 type PixelUpdate = record { pos : Position; color : Color; tile_idx : nat32 };
 type Position = record { x : nat32; y : nat32 };
 service : {
+  backup_edits : () -> (vec record { principal; nat64 }) query;
   check_cooldown : () -> (nat64) query;
   cycles : () -> (nat64) query;
   http_request : (HttpRequest) -> (HttpResponse) query;

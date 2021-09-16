@@ -1,20 +1,20 @@
-import type { Principal } from '@dfinity/principal';
+import type { Principal } from "@dfinity/principal";
 export interface Color {
-  'a' : number,
-  'b' : number,
-  'g' : number,
-  'r' : number,
+  a: number;
+  b: number;
+  g: number;
+  r: number;
 }
 export interface HttpRequest {
-  'url' : string,
-  'method' : string,
-  'body' : Array<number>,
-  'headers' : Array<[string, string]>,
+  url: string;
+  method: string;
+  body: Array<number>;
+  headers: Array<[string, string]>;
 }
 export interface HttpResponse {
-  'body' : Array<number>,
-  'headers' : Array<[string, string]>,
-  'status_code' : number,
+  body: Array<number>;
+  headers: Array<[string, string]>;
+  status_code: number;
 }
 export interface PixelUpdate {
   pos: Position;
@@ -26,6 +26,7 @@ export interface Position {
   y: number;
 }
 export interface _SERVICE {
+  backup_edits: () => Promise<Array<[Principal, bigint]>>;
   check_cooldown: () => Promise<bigint>;
   cycles: () => Promise<bigint>;
   http_request: (arg_0: HttpRequest) => Promise<HttpResponse>;
