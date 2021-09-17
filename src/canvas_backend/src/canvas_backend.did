@@ -19,5 +19,4 @@ service : {
   http_request : (HttpRequest) -> (HttpResponse) query;
   time_left : () -> (nat64) query;
   update_overview : () -> ();
-  update_pixel : (PixelUpdate) -> ();
 }

@@ -117,18 +117,18 @@ struct PixelUpdate {
     tile_idx: u32, pos: Position, color: Color
 }
 
-#[candid_method(update)]
-#[update]
-fn update_pixel(pixel: PixelUpdate) {
-    let canvas = storage::get_mut::<CanvasState>();
-    let edits = storage::get_mut::<EditsState>();
-    if edits
-        .register_edit(ic_cdk::caller(), ic_cdk::api::time())
-        .is_ok()
-    {
-        canvas.update_pixel(pixel.tile_idx, pixel.pos, pixel.color);
-    }
-}
+// #[candid_method(update)]
+// #[update]
+// fn update_pixel(pixel: PixelUpdate) {
+    // let canvas = storage::get_mut::<CanvasState>();
+    // let edits = storage::get_mut::<EditsState>();
+    // if edits
+    //     .register_edit(ic_cdk::caller(), ic_cdk::api::time())
+    //     .is_ok()
+    // {
+    //     canvas.update_pixel(pixel.tile_idx, pixel.pos, pixel.color);
+    // }
+// }
 
 #[init]
 fn init() {
@@ -207,7 +207,7 @@ fn png_header_fields(body: &[u8]) -> Vec<HeaderField> {
 
 export_service!();
 
-#[ic_cdk_macros::query(name = "__get_candid_interface_tmp_hack")]
-fn export_candid() -> String {
-    __export_service()
-}
+// #[ic_cdk_macros::query(name = "__get_candid_interface_tmp_hack")]
+// fn export_candid() -> String {
+//     __export_service()
+// }

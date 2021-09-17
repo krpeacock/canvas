@@ -4,6 +4,8 @@ import {
   defaultTheme,
   Flex,
   Header,
+  View,
+  Text,
 } from "@adobe/react-spectrum";
 import Canvases, { canvasSize } from "./Canvases";
 import { AuthClient } from "@dfinity/auth-client";
@@ -122,6 +124,12 @@ function App(props: Props) {
           }}
         >
           <Header>
+            <View backgroundColor="red-400">
+              <Text>
+                The site is under maintenance to protect against botting.
+                Submissions are disabled.
+              </Text>
+            </View>
             <Flex
               direction="row"
               wrap
