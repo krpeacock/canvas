@@ -108,9 +108,6 @@ pub fn http_request(request: HttpRequest) -> HttpResponse {
 #[candid_method(update)]
 #[update]
 fn update_overview() {
-    if ic_cdk::caller().to_string() != "TODO" {
-        return;
-    }
     let canvas = storage::get_mut::<CanvasState>();
     canvas.update_overview();
 }
