@@ -60,29 +60,19 @@ function Submit(props: { handleDrop: any; renderCanvas2: any }) {
         pos: relativePosition,
         color: { ...color, a: 255 },
       })
-      .then(async () => {
-        toast.success(
-          `Submitted! You can play again in ${cooldown} second${
-            cooldown === 1 ? "" : "s"
-          }`,
-          { duration: 3000 }
-        );
-        await refreshTile(tileIdx);
-        await handleDrop();
-        renderCanvas2();
-      })
       .catch((err) => {
         console.error(err);
         toast.error(
           `There was a problem submitting your pixel. Make sure you have logged in and have waited ${cooldown} seconds since your last submission!`
         );
-      })
-      .finally(() => {
-        window.setTimeout(() => {
-          setIsLocked(false);
-          toast("Ready to submit again!");
-        }, cooldown * 1000);
       });
+
+    setTimeout(async () => {
+      await refreshTile(tileIdx);
+      await handleDrop();
+      renderCanvas2();
+      setIsLocked(false);
+    }, 1000);
   };
   const formattedColor = `rgba(${color.r}, ${color.g}, ${color.b}, ${255})`;
 
