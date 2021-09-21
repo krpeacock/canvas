@@ -10,15 +10,14 @@
   ],
   "scripts": {
     "build": "webpack",
-    "prebuild": "npm run copy:types",
     "start": "webpack serve --mode development --env development",
-    "prestart": "npm run copy:types",
     "test": "jest",
     "copy:types": "rsync -avr .dfx/$(echo ${DFX_NETWORK:-'**'})/canisters/** --exclude='assets/' --exclude='idl/' --exclude='*.wasm' --delete src/declarations"
   },
   "devDependencies": {
     "@types/node": "^16.9.1",
     "@types/react-color": "^3.0.5",
+    "@types/react-router-dom": "^5.1.9",
     "@types/styled-components": "^5.1.14",
     "assert": "2.0.0",
     "buffer": "6.0.3",
@@ -63,6 +62,7 @@
     "react-dom": "^16.8.0",
     "react-draggable": "^4.4.4",
     "react-hot-toast": "^2.1.1",
+    "react-router-dom": "^5.3.0",
     "style-loader": "^3.2.1",
     "styled-components": "^5.3.1",
     "ts-loader": "^9.2.5",

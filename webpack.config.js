@@ -117,5 +117,6 @@ module.exports = {
     hot: true,
     contentBase: path.resolve(__dirname, "./src/canvas_assets"),
     watchContentBase: true,
+    historyApiFallback: true,
   },
 };
