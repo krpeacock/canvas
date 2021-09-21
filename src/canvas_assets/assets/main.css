@@ -34,6 +34,10 @@ section {
     align-items: baseline;
 }
 
+footer {
+    padding: 1rem
+}
+
 #clickMeBtn {
     padding: 5px 20px;
     margin: 10px auto;

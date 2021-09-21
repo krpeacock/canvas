@@ -158,6 +158,9 @@ function App(props: Props) {
               <Canvas />
             </Route>
           </Router>
+          <footer>
+            2021 - A <a href="https://kyle-peacock.com">Kyle Peacock</a> project
+          </footer>
         </AppContext.Provider>
       </SpectrumProvider>
     </>
