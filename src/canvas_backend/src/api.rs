@@ -58,9 +58,12 @@ pub fn cycles() -> u64 {
 // Don't share this with the candid interface
 #[candid_method(query)]
 #[query]
-pub fn backup_edits() -> HashMap<ic_cdk::export::Principal, u64> {
+pub fn backup_edits(since: usize) -> Vec<Principal> {
     let edits = storage::get::<EditsState>();
-    return edits.edits.clone();
+    let mut sorted = edits.edits.clone().into_keys().collect::<Vec<_>>();
+    sorted.sort();
+    return sorted[std::cmp::min(since, sorted.len())..std::cmp::min(since + 10_000, sorted.len())]
+        .to_vec();
 }
 
 #[candid_method(query)]
