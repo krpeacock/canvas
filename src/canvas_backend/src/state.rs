@@ -104,7 +104,7 @@ impl Default for CanvasState {
     }
 }
 
-fn get_tile_offset(tile_idx: usize) -> (u32, u32) {
+pub fn get_tile_offset(tile_idx: usize) -> (u32, u32) {
     let x = (tile_idx as u32 % ROW_LENGTH) * OVERVIEW_TILE_SIZE;
     let y = (tile_idx as u32 / ROW_LENGTH) * OVERVIEW_TILE_SIZE;
     (x, y)
