@@ -1,0 +1,27 @@
+[
+    {},
+    {
+        "asset": "thesis.png",
+        "metadata": {
+            "collection": "Dialectic",
+            "title": "Thesis",
+            "description": "Thesis represents my unchallenged intent for the canvas. It's a playful image, following three days of contributions from users. When I created the project, I imagined something like this image would be the final state of the canvas, where most people can see their contributions in the final image."
+        }
+    },
+    {
+        "asset": "antithesis.png",
+        "metadata": {
+            "collection": "Dialectic",
+            "title": "Antithesis",
+            "description": "Antithesis caught me off guard. After I'd noticed some larger images overwriting unnecessary detail by painting in background details, I made a personal plea to botters to leave minimal updates only. Through the use of bot users, some user or users replaced approximately 1/5 of the canvas with large screenshots, including my post to the IC Canvas portal. \n\nThese users rejected my intent, and threw it back at me. This art was drawn in the medium of a smart contract, and the rules I established at the start of the experiment could do nothing to stop someone from claiming as much of the canvas as they wanted, by bypassing the UI and talking directly with the Canister running the project."
+        }
+    },
+    {
+        "asset": "synthesis.png",
+        "metadata": {
+            "collection": "Dialectic",
+            "title": "Synthesis",
+            "description": "And then we have the final state of the canvas. Since the bots could already make as many updates as they wanted, I reduced the cooldown for \"real\" users to 1 second, and it led to more hand-drawn art to arise. Surprisingly, you can see that two of the large screenshots appear to have partially reverted. The story becomes clearer if you toggle the transparency. \n\nIn reality, another user wrote a new bot that fought back against the antithesis, attempting to restore the canvas from a screenshot I had shared the previous day. Both bots were working continuously until the very end, fighting to establish their own preferred version of the canvas, leading to an in-between state of noise, revealing traces of what was there before."
+        }
+    }
+]

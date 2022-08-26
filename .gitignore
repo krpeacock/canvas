@@ -16,3 +16,5 @@ dist/
 
 # cargo stuff
 target
+
+.env

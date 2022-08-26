@@ -1,10 +1,10 @@
 import { Actor, HttpAgent } from "@dfinity/agent";
 
 // Imports and re-exports candid interface
-import { idlFactory } from "./canvas_backend.did.js";
-export { idlFactory } from "./canvas_backend.did.js";
+import { idlFactory } from "./dialectic_nft.did.js";
+export { idlFactory } from "./dialectic_nft.did.js";
 // CANISTER_ID is replaced by webpack based on node environment
-export const canisterId = process.env.CANVAS_BACKEND_CANISTER_ID;
+export const canisterId = process.env.DIALECTIC_NFT_CANISTER_ID;
 
 /**
  * @typedef CreateActorOptions
@@ -20,7 +20,7 @@ export const canisterId = process.env.CANVAS_BACKEND_CANISTER_ID;
  * @param {CreateActorOptions["agent"]} [options.agent] An initialized agent
  * @param {CreateActorOptions["agentOptions"]} [options.agentOptions] Options to initialize an {@link HttpAgent}. Overridden if an `agent` is passed.
  * @param {CreateActorOptions["actorOptions"]} [options.actorOptions] Options of to pass during the actor initialization.
- * @return {import("@dfinity/agent").ActorSubclass<import("./canvas_backend.did.js")._SERVICE>} ActorSubclass configured for the canister
+ * @return {import("@dfinity/agent").ActorSubclass<import("./dialectic_nft.did.js")._SERVICE>} ActorSubclass configured for the canister
  */
 export const createActor = (canisterId, options = {}) => {
   const agent = options.agent || new HttpAgent({ ...options.agentOptions });
@@ -48,9 +48,3 @@ export const createActor = (canisterId, options = {}) => {
     ...options.actorOptions,
   });
 };
-
-/**
- * A ready-to-use agent for the canvas_backend canister
- * @type {import("@dfinity/agent").ActorSubclass<import("./canvas_backend.did.js")._SERVICE>}
-*/
-export const canvas_backend = createActor(canisterId);

@@ -1,4 +1,6 @@
 import type { Principal } from '@dfinity/principal';
+import type { ActorMethod } from '@dfinity/agent';
+
 export interface Color {
   'a' : number,
   'b' : number,
@@ -23,10 +25,10 @@ export interface PixelUpdate {
 }
 export interface Position { 'x' : number, 'y' : number }
 export interface _SERVICE {
-  'backup_edits' : () => Promise<Array<[Principal, bigint]>>,
-  'check_cooldown' : () => Promise<bigint>,
-  'cycles' : () => Promise<bigint>,
-  'http_request' : (arg_0: HttpRequest) => Promise<HttpResponse>,
-  'time_left' : () => Promise<bigint>,
-  'update_overview' : () => Promise<undefined>,
+  'backup_edits' : ActorMethod<[], Array<[Principal, bigint]>>,
+  'check_cooldown' : ActorMethod<[], bigint>,
+  'cycles' : ActorMethod<[], bigint>,
+  'http_request' : ActorMethod<[HttpRequest], HttpResponse>,
+  'time_left' : ActorMethod<[], bigint>,
+  'update_overview' : ActorMethod<[], undefined>,
 }

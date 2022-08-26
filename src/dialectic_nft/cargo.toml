@@ -1,0 +1,17 @@
+[package]
+name = "dialectic_nft"
+version = "0.1.0"
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+candid = "0.7.4"
+ic-cdk = "0.5.0"
+ic-cdk-macros = "0.5.0"
+serde = "1.0.132"
+num-traits = "0.2.14"
+compile-time-run = "0.2.12"
+cap-sdk = { git = "https://github.com/Psychedelic/cap.git", branch = "main" }

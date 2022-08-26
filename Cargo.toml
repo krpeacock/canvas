@@ -1,2 +1,2 @@
 [workspace]
-members = ["src/canvas_backend"]
+members = ["src/canvas_backend", "src/dialectic_nft"]

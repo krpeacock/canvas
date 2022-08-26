@@ -2,13 +2,15 @@ const path = require("path");
 const webpack = require("webpack");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const TerserPlugin = require("terser-webpack-plugin");
-const CopyPlugin = require("copy-webpack-plugin");
 
-let localCanisters, prodCanisters, canisters;
-
-function initCanisterIds() {
+function initCanisterEnv() {
+  let localCanisters, prodCanisters;
   try {
-    localCanisters = require(path.resolve(".dfx", "local", "canister_ids.json"));
+    localCanisters = require(path.resolve(
+      ".dfx",
+      "local",
+      "canister_ids.json"
+    ));
   } catch (error) {
     console.log("No local canister_ids.json found. Continuing production");
   }
@@ -22,22 +24,22 @@ function initCanisterIds() {
     process.env.DFX_NETWORK ||
     (process.env.NODE_ENV === "production" ? "ic" : "local");
 
-  canisters = network === "local" ? localCanisters : prodCanisters;
+  const canisterConfig = network === "local" ? localCanisters : prodCanisters;
 
-  for (const canister in canisters) {
-    process.env[canister.toUpperCase() + "_CANISTER_ID"] =
-      canisters[canister][network];
-  }
+  return Object.entries(canisterConfig).reduce((prev, current) => {
+    const [canisterName, canisterDetails] = current;
+    prev[canisterName.toUpperCase() + "_CANISTER_ID"] =
+      canisterDetails[network];
+    return prev;
+  }, {});
 }
-initCanisterIds();
+const canisterEnvVariables = initCanisterEnv();
 
 const isDevelopment = process.env.NODE_ENV !== "production";
-const asset_entry = path.join(
-  "src",
-  "canvas_assets",
-  "src",
-  "index.html"
-);
+
+const frontendDirectory = "canvas_assets";
+
+const frontend_entry = path.join("src", frontendDirectory, "src", "index.html");
 
 module.exports = {
   target: "web",
@@ -45,7 +47,7 @@ module.exports = {
   entry: {
     // The frontend.entrypoint points to the HTML file for this build, so we need
     // to replace the extension to `.js`.
-    index: path.join(__dirname, asset_entry).replace(/\.html$/, ".tsx"),
+    index: path.join(__dirname, frontend_entry).replace(/\.html$/, ".tsx"),
   },
   devtool: isDevelopment ? "source-map" : false,
   optimization: {
@@ -64,7 +66,7 @@ module.exports = {
   },
   output: {
     filename: "index.js",
-    path: path.join(__dirname, "dist", "canvas_assets"),
+    path: path.join(__dirname, "dist", frontendDirectory),
   },
 
   // Depending in the language or framework you are using for
@@ -80,23 +82,12 @@ module.exports = {
   },
   plugins: [
     new HtmlWebpackPlugin({
-      template: path.join(__dirname, asset_entry),
+      template: path.join(__dirname, frontend_entry),
       cache: false,
-    }),
-    new CopyPlugin({
-      patterns: [
-        {
-          from: path.join(__dirname, "src", "canvas_assets", "assets"),
-          to: path.join(__dirname, "dist", "canvas_assets"),
-        },
-      ],
     }),
     new webpack.EnvironmentPlugin({
       NODE_ENV: "development",
-      CANVAS_BACKEND_CANISTER_ID: canisters["canvas_backend"],
-      II_URL: isDevelopment
-        ? "http://localhost:8000?canisterId=rrkah-fqaaa-aaaaa-aaaaq-cai#authorize"
-        : "https://identity.ic0.app/#authorize",
+      ...canisterEnvVariables,
     }),
     new webpack.ProvidePlugin({
       Buffer: [require.resolve("buffer/"), "Buffer"],
@@ -107,16 +98,16 @@ module.exports = {
   devServer: {
     proxy: {
       "/api": {
-        target: "http://localhost:8000",
+        target: "http://127.0.0.1:8000",
         changeOrigin: true,
         pathRewrite: {
           "^/api": "/api",
         },
       },
     },
+    static: path.resolve(__dirname, "src", frontendDirectory, "assets"),
     hot: true,
-    contentBase: path.resolve(__dirname, "./src/canvas_assets"),
-    watchContentBase: true,
-    historyApiFallback: true,
+    watchFiles: [path.resolve(__dirname, "src", frontendDirectory)],
+    liveReload: true,
   },
 };

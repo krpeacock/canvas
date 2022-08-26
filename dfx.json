@@ -1,10 +1,20 @@
 {
   "canisters": {
     "canvas_backend": {
-      "build": "./build.sh",
-      "type": "custom",
-      "candid": "src/canvas_backend/src/canvas_backend.did",
-      "wasm": "target/wasm32-unknown-unknown/release/canvas_backend-opt.wasm"
+      "dependencies": [
+        "dialectic_nft"
+      ],
+      "package": "canvas_backend",
+      "type": "rust",
+      "candid": "src/canvas_backend/src/canvas_backend.did"
+    },
+    "dialectic_nft": {
+      "type": "rust",
+      "package": "dialectic_nft",
+      "candid": "nft.did",
+      "declarations": {
+        "node_compatibility": true
+      }
     },
     "canvas_assets": {
       "type": "assets",
@@ -20,7 +30,6 @@
       "packtool": ""
     }
   },
-  "dfx": "0.8.1",
   "networks": {
     "local": {
       "bind": "127.0.0.1:8000",
