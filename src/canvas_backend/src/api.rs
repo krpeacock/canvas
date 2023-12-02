@@ -4,6 +4,8 @@ use ic_cdk::{
         Principal,
     },
     storage,
+    caller,
+    api,
 };
 use ic_cdk_macros::*;
 use image::{GenericImageView, Pixel};
@@ -11,6 +13,7 @@ use image::{GenericImageView, Pixel};
 use crate::{
     http_request::{HeaderField, HttpRequest, HttpResponse},
     state::{CanvasState, EditsState, COOLDOWN},
+    address::{AddressBook, AddressEntry, Role},
 };
 use serde::Deserialize;
 use std::collections::{HashMap, HashSet};
@@ -50,7 +53,7 @@ pub fn check_cooldown() -> u64 {
 }
 
 #[candid_method(query)]
-#[query]
+#[query(guard = "is_custodian_or_controller", name = "cycles")]
 pub fn cycles() -> u64 {
     return ic_cdk::api::canister_balance();
 }
@@ -58,9 +61,13 @@ pub fn cycles() -> u64 {
 // Don't share this with the candid interface
 #[candid_method(query)]
 #[query]
-pub fn backup_edits() -> HashMap<ic_cdk::export::Principal, u64> {
+pub fn backup_edits(page: usize ) -> Vec<Principal> {
     let edits = storage::get::<EditsState>();
-    return edits.edits.clone();
+    let mut sorted = edits.edits.clone().into_keys().collect::<Vec<_>>();
+    sorted.sort();
+    let start = page * 1000;
+    let end = start + 1000;
+    return sorted[start..end].to_vec();
 }
 
 #[candid_method(query)]
@@ -134,6 +141,7 @@ struct PixelUpdate {
 fn init() {
     let _canvas = storage::get_mut::<CanvasState>();
     let _edits = storage::get_mut::<EditsState>();
+    add_address(AddressEntry::new(caller(), None, Role::Controller));
     ic_cdk::println!("initializing...");
 }
 
@@ -142,6 +150,7 @@ fn canister_pre_upgrade() {
     ic_cdk::println!("Executing pre upgrade");
     let edits = storage::get::<EditsState>();
     let canvas = storage::get_mut::<CanvasState>();
+    let address_book = storage::get::<AddressBook>();
     canvas.update_overview();
     storage::stable_save((
         edits.edits.clone(),
@@ -159,6 +168,14 @@ fn canister_post_upgrade() {
 
     let edits_state = storage::get_mut::<EditsState>();
     let canvas_state = storage::get_mut::<CanvasState>();
+    let address_book = storage::get_mut::<AddressBook>();
+
+    for entry in storage.address_book.into_iter() {
+        address_book.insert(entry)
+    }
+
+    add_address(AddressEntry::new(caller(), None, Role::Controller));
+
     if let Ok((edits, start, pixel_requested, tiles, overview)) = storage::stable_restore::<(
         HashMap<Principal, u64>,
         Option<u64>,
@@ -169,11 +186,17 @@ fn canister_post_upgrade() {
         edits_state.start = start;
         edits_state.edits = edits;
         edits_state.pixel_requested = pixel_requested;
+        // restore_canvas(canvas_state);
+        // return;
+
         canvas_state.raw_tiles = tiles
             .iter()
             .map(|t| image::load_from_memory(t).unwrap())
             .collect();
+        canvas_state.tile_images = tiles;
+
         canvas_state.raw_overview = image::load_from_memory(&overview).unwrap();
+        canvas_state.overview_image = overview;
 
         // Update one pixel to complete refresh of preview
         let x: u32 = 0;
@@ -195,7 +218,27 @@ fn canister_post_upgrade() {
         // edits_state.start = None;
     } else {
         ic_cdk::println!("failed to restore state.");
-    }
+    };
+}
+
+fn restore_canvas(canvas: &mut CanvasState) {
+    // let canvas = storage::get_mut::<CanvasState>();
+    let image = include_bytes!("backup.png");
+    canvas.raw_overview = image::load_from_memory(image).unwrap();
+    canvas.overview_image = image.to_vec();
+    canvas.tile_images = vec![];
+    canvas.raw_tiles = vec![];
+    (0..256).for_each(|i| {
+        let (x, y) = super::state::get_tile_offset(i);
+        let raw_tile = canvas.raw_overview.crop_imm(x, y, 64, 64);
+        canvas.raw_tiles.push(raw_tile.clone());
+
+        let mut bytes: Vec<u8> = Vec::new();
+        raw_tile
+            .write_to(&mut bytes, image::ImageOutputFormat::Png)
+            .expect("Could not encode tile as PNG!");
+        canvas.tile_images.push(bytes);
+    });
 }
 
 fn png_header_fields(body: &[u8]) -> Vec<HeaderField> {
@@ -211,3 +254,40 @@ export_service!();
 // fn export_candid() -> String {
 //     __export_service()
 // }
+
+
+/***************************************************************************************************
+ * Utilities
+ **************************************************************************************************/
+
+// Address book
+#[update(guard = "is_controller")]
+fn add_address(address: AddressEntry) {
+    storage::get_mut::<AddressBook>().insert(address.clone());
+}
+
+/// Authorize a custodian.
+#[update(guard = "is_controller")]
+fn authorize(custodian: Principal) {
+    add_address(AddressEntry::new(custodian, None, Role::Custodian));
+}
+
+
+/// Check if the caller is the initializer.
+fn is_controller() -> Result<(), String> {
+    if storage::get::<AddressBook>().is_controller(&caller()) {
+        Ok(())
+    } else {
+        Err("Only the controller can call this method.".to_string())
+    }
+}
+
+/// Check if the caller is a custodian.
+fn is_custodian_or_controller() -> Result<(), String> {
+    let caller = &caller();
+    if storage::get::<AddressBook>().is_controller_or_custodian(caller) || &api::id() == caller {
+        Ok(())
+    } else {
+        Err("Only a controller or custodian can call this method.".to_string())
+    }
+}
