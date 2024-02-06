@@ -3,29 +3,20 @@ import { Actor, HttpAgent } from "@dfinity/agent";
 // Imports and re-exports candid interface
 import { idlFactory } from "./canvas_assets.did.js";
 export { idlFactory } from "./canvas_assets.did.js";
-// CANISTER_ID is replaced by webpack based on node environment
-export const canisterId = process.env.CANVAS_ASSETS_CANISTER_ID;
 
-/**
- * @typedef CreateActorOptions
- * @property {(import("@dfinity/agent").Agent)} [agent]
- * @property {(import("@dfinity/agent").HttpAgentOptions)} [agentOptions]
- * @property {(import("@dfinity/agent").ActorConfig)} [actorOptions]
+/* CANISTER_ID is replaced by webpack based on node environment
+ * Note: canister environment variable will be standardized as
+ * process.env.CANISTER_ID_<CANISTER_NAME_UPPERCASE>
+ * beginning in dfx 0.15.0
  */
+export const canisterId =
+  process.env.CANISTER_ID_CANVAS_ASSETS ||
+  process.env.CANVAS_ASSETS_CANISTER_ID;
 
-/**
- *
- * @param {string | import("@dfinity/principal").Principal} canisterId Canister ID of Agent
- * @param {CreateActorOptions} options {@link CreateActorOptions}
- * @param {CreateActorOptions["agent"]} [options.agent] An initialized agent
- * @param {CreateActorOptions["agentOptions"]} [options.agentOptions] Options to initialize an {@link HttpAgent}. Overridden if an `agent` is passed.
- * @param {CreateActorOptions["actorOptions"]} [options.actorOptions] Options of to pass during the actor initialization.
- * @return {import("@dfinity/agent").ActorSubclass<import("./canvas_assets.did.js")._SERVICE>} ActorSubclass configured for the canister
- */
 export const createActor = (canisterId, options = {}) => {
   const agent = options.agent || new HttpAgent({ ...options.agentOptions });
 
-  if (options.agent && options.agentConfig) {
+  if (options.agent && options.agentOptions) {
     console.warn(
       "Detected both agent and agentOptions passed to createActor. Ignoring agentOptions and proceeding with the provided agent."
     );
@@ -49,8 +40,4 @@ export const createActor = (canisterId, options = {}) => {
   });
 };
 
-/**
- * A ready-to-use agent for the canvas_assets canister
- * @type {import("@dfinity/agent").ActorSubclass<import("./canvas_assets.did.js")._SERVICE>}
-*/
-export const canvas_assets = createActor(canisterId);
+export const canvas_assets = canisterId ? createActor(canisterId) : undefined;

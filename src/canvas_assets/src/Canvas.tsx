@@ -26,12 +26,10 @@ function Canvas(props: Props) {
         >
           <div>
             <p>
-              Welcome to IC Canvas! This is an experimental project from the
-              Dfinity Foundation 2021 hackathon. Below you are two canvases. One
-              contains a 1024 x 1024 pixel canvas, which starts as a blank
-              slate. For your convenience, you can click anywhere on the canvas,
-              or drag the blinking cursor to choose where you would like to
-              work.
+              Welcome to IC Canvas! Below you are two canvases. One contains a
+              1024 x 1024 pixel canvas, which starts as a blank slate. For your
+              convenience, you can click anywhere on the canvas, or drag the
+              blinking cursor to choose where you would like to work.
             </p>
             <p>
               Below is a second canvas, which shows you a zoomed in view of the

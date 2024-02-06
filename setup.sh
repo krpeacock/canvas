@@ -6,7 +6,9 @@ dfx start --background --clean
 
 dfx deploy canvas_backend
 
-dfx deploy dialectic_nft --argument '(opt record{custodians=opt vec{principal"ld355-gfjoe-2j6u4-huivi-cfdvi-qvihl-cyhkr-su63z-xpigb-ahldh-fqe"}})'
-dfx canister call dialectic_nft setCustodians "(vec {principal \"ld355-gfjoe-2j6u4-huivi-cfdvi-qvihl-cyhkr-su63z-xpigb-ahldh-fqe\"})"
+# dfx deps for Internet Identity
+dfx deps pull
+dfx deps init internet-identity --argument "(null)"
+dfx deps deploy
+
 dfx deploy canvas_assets
-dfx canister call canvas_assets authorize "(principal  \"ld355-gfjoe-2j6u4-huivi-cfdvi-qvihl-cyhkr-su63z-xpigb-ahldh-fqe\")"

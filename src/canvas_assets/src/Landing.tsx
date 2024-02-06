@@ -1,6 +1,6 @@
-import { Divider } from "@react-spectrum/divider";
-import { Flex } from "@react-spectrum/layout";
-import { Heading, Text } from "@react-spectrum/text";
+import { Divider } from "@adobe/react-spectrum";
+import { Flex } from "@adobe/react-spectrum";
+import { Heading, Text } from "@adobe/react-spectrum";
 import React from "react";
 import { Link } from "react-router-dom";
 import NftPreview from "./NftPreview";
@@ -14,28 +14,6 @@ function Landing(props: Props) {
     <>
       <main>
         <h1>Canvas #1 - Dialectic</h1>
-        <Text>
-          <p>
-            First of all, I want to thank everyone who participated in the IC
-            Canvas experiment. Whether you added a single pixel, created a
-            beautiful design, or deliberately attempted to sabotage the
-            experiment, your engagement became part of the history and the
-            meaning of this piece.
-          </p>
-          <p>
-            After reflecting on the experiment, I have decided that the final
-            state of the canvas is incomplete on its own. Instead, I have chosen
-            to mint a set of three NFT's as Canvas #1 - Dialectic. The concept
-            I'm exploring with this set comes from the German philosopher,
-            G.W.F. Hegel's famous work, <i>Phenomenology of Spirit</i>, which
-            you can read more about{" "}
-            <a href="https://plato.stanford.edu/entries/hegel-dialectics/">
-              here
-            </a>
-            . Without further ado, I present to you <strong>Thesis</strong>,{" "}
-            <strong>Antithesis</strong>, and <strong>Synthesis</strong>.
-          </p>
-        </Text>
         <Flex wrap gap="1rem" width="100%" justifyContent="space-evenly">
           <NftPreview imgSrc="/thesis.png" defaultMode="light" title="Thesis">
             <p>

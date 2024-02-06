@@ -54,18 +54,18 @@ function Submit(props: { handleDrop: any; renderCanvas2: any }) {
     toast("Submitting your pixel");
     const { tileIdx, relativePosition } =
       getTileAndRelativePosition(absolutePosition);
-    // actor
-    //   .update_pixel({
-    //     tile_idx: tileIdx,
-    //     pos: relativePosition,
-    //     color: { ...color, a: 255 },
-    //   })
-    //   .catch((err) => {
-    //     console.error(err);
-    //     toast.error(
-    //       `There was a problem submitting your pixel. Make sure you have logged in and have waited ${cooldown} seconds since your last submission!`
-    //     );
-    //   });
+    actor
+      .update_pixel({
+        tile_idx: tileIdx,
+        pos: relativePosition,
+        color: { ...color, a: 255 },
+      })
+      .catch((err) => {
+        console.error(err);
+        toast.error(
+          `There was a problem submitting your pixel. Make sure you have logged in and have waited ${cooldown} seconds since your last submission!`
+        );
+      });
 
     setTimeout(async () => {
       await refreshTile(tileIdx);
@@ -88,7 +88,6 @@ function Submit(props: { handleDrop: any; renderCanvas2: any }) {
       <Button
         variant="cta"
         type="submit"
-        isDisabled={true}
         onPress={() => {
           if (isConfirmDisabled && isAuthenticated) {
             submit();

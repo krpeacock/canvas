@@ -7,16 +7,17 @@ export interface Color {
   'g' : number,
   'r' : number,
 }
+export interface HttpHeader { 'value' : string, 'name' : string }
 export interface HttpRequest {
   'url' : string,
   'method' : string,
-  'body' : Array<number>,
+  'body' : Uint8Array | number[],
   'headers' : Array<[string, string]>,
 }
 export interface HttpResponse {
-  'body' : Array<number>,
-  'headers' : Array<[string, string]>,
-  'status_code' : number,
+  'status' : bigint,
+  'body' : Uint8Array | number[],
+  'headers' : Array<HttpHeader>,
 }
 export interface PixelUpdate {
   'pos' : Position,
@@ -25,10 +26,10 @@ export interface PixelUpdate {
 }
 export interface Position { 'x' : number, 'y' : number }
 export interface _SERVICE {
-  'backup_edits' : ActorMethod<[], Array<[Principal, bigint]>>,
   'check_cooldown' : ActorMethod<[], bigint>,
   'cycles' : ActorMethod<[], bigint>,
   'http_request' : ActorMethod<[HttpRequest], HttpResponse>,
   'time_left' : ActorMethod<[], bigint>,
   'update_overview' : ActorMethod<[], undefined>,
+  'update_pixel' : ActorMethod<[PixelUpdate], undefined>,
 }

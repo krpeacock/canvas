@@ -1,17 +1,17 @@
-import { ActionButton, Button } from "@react-spectrum/button";
-import { Dialog, DialogContainer } from "@react-spectrum/dialog";
-import { Flex } from "@react-spectrum/layout";
-import { Switch } from "@react-spectrum/switch";
-import { Heading, Text } from "@react-spectrum/text";
-import { Content, Footer, Header } from "@react-spectrum/view";
-import FullScreen from "@spectrum-icons/workflow/FullScreen";
+import { ActionButton, Button } from "@adobe/react-spectrum";
+import { Dialog, DialogContainer } from "@adobe/react-spectrum";
+import { Flex } from "@adobe/react-spectrum";
+import { Switch } from "@adobe/react-spectrum";
+import { Heading, Text } from "@adobe/react-spectrum";
+import { Content, Footer, Header } from "@adobe/react-spectrum";
 import React, { useState } from "react";
 import styled from "styled-components";
+import FullScreen from "@spectrum-icons/workflow/FullScreen";
 
-const Picture = styled.picture<{ isDark: boolean }>`
+const Picture = styled.picture<{ isdark: boolean }>`
   display: flex;
   aspect-ratio: 1;
-  background: ${(props) => (props.isDark ? "black" : "white")};
+  background: ${(props) => (props.isdark ? "black" : "white")};
   img {
     width: 100%;
     max-height: initial;
@@ -45,7 +45,7 @@ interface Props {
 function NftPreview(props: Props) {
   const { imgSrc, defaultMode, title, children } = props;
   const [fullScreen, setFullScreen] = useState(false);
-  const [isDark, setIsDark] = useState(defaultMode !== "light");
+  const [isdark, setisdark] = useState(defaultMode !== "light");
 
   return (
     <Preview fullscreen={fullScreen}>
@@ -61,7 +61,7 @@ function NftPreview(props: Props) {
                 marginBottom="1rem"
                 width="100%"
               >
-                <Switch isSelected={isDark} onChange={setIsDark}>
+                <Switch isSelected={isdark} onChange={setisdark}>
                   <Text>Toggle background</Text>
                 </Switch>
                 <ActionButton
@@ -73,7 +73,7 @@ function NftPreview(props: Props) {
                 </ActionButton>
               </Flex>
               <Flex direction="column" marginBottom="1rem">
-                <Picture isDark={isDark}>
+                <Picture isdark={isdark}>
                   <img src={imgSrc} />
                 </Picture>
                 <Heading level={3}>{title}</Heading>
@@ -85,7 +85,7 @@ function NftPreview(props: Props) {
       ) : (
         <Flex direction="column" marginBottom="1rem">
           <Flex justifyContent="space-between" marginBottom="1rem">
-            <Switch isSelected={isDark} onChange={setIsDark}>
+            <Switch isSelected={isdark} onChange={setisdark}>
               <Text>Toggle background</Text>
             </Switch>
             <ActionButton
@@ -96,7 +96,7 @@ function NftPreview(props: Props) {
               <FullScreen></FullScreen>
             </ActionButton>
           </Flex>
-          <Picture isDark={isDark}>
+          <Picture isdark={isdark}>
             <img src={imgSrc} />
           </Picture>
           <Heading level={3}>{title}</Heading>

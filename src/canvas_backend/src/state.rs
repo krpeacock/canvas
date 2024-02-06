@@ -1,16 +1,99 @@
 use std::{
-    collections::{HashMap, HashSet},
-    time::Duration,
+    borrow::Cow, collections::{HashMap, HashSet}, io::Cursor, time::Duration
 };
+use ic_stable_structures::Storable;
+use ic_stable_structures::storable::Bound;
 
 pub const COOLDOWN: u64 = 1;
 
 use crate::api::{
     Color, Position, NO_TILES, OVERVIEW_IMAGE_SIZE, OVERVIEW_TILE_SIZE, ROW_LENGTH, TILE_SIZE,
 };
-use ic_cdk::export::Principal;
+use candid::Principal;
 use image::{DynamicImage, Rgba, RgbaImage};
 use serde::{Deserialize, Serialize};
+
+impl Storable for CanvasState {
+    fn to_bytes(&self) -> Cow<[u8]> {
+        let mut bytes = vec![];
+        self.raw_overview
+            .write_to(&mut bytes, image::ImageOutputFormat::Png)
+            .expect("Could not encode overview as PNG!");
+        let overview_image = bytes;
+
+        let tile_images: Vec<_> = self
+            .raw_tiles
+            .iter()
+            .map(|t| {
+                let mut bytes = vec![];
+                t.write_to(&mut bytes, image::ImageOutputFormat::Png)
+                    .expect("Could not encode tile as PNG!");
+                bytes
+            })
+            .collect();
+
+        let mut bytes = vec![];
+        self.raw_overview
+            .write_to(&mut bytes, image::ImageOutputFormat::Png)
+            .expect("Could not encode overview as PNG!");
+        let raw_overview = bytes;
+
+        let mut bytes = vec![];
+        self.raw_tiles
+            .iter()
+            .map(|t| {
+                let mut bytes = vec![];
+                t.write_to(&mut bytes, image::ImageOutputFormat::Png)
+                    .expect("Could not encode tile as PNG!");
+                bytes
+            })
+            .collect::<Vec<_>>();
+
+        let raw_tiles = bytes;
+        raw_tiles.into()
+
+
+    }
+    fn from_bytes(bytes: Cow<[u8]>) -> CanvasState {
+        let img = image::io::Reader::new(Cursor::new(bytes))
+            .with_guessed_format()
+            .unwrap();
+        let img = img.decode().unwrap();
+        let raw_overview = img;
+
+        let mut bytes = vec![];
+        raw_overview
+            .write_to(&mut bytes, image::ImageOutputFormat::Png)
+            .expect("Could not encode overview as PNG!");
+        let overview_image = bytes;
+
+        let raw_tiles = (0..NO_TILES)
+            .map(|_i| DynamicImage::ImageRgba8(RgbaImage::new(TILE_SIZE, TILE_SIZE)))
+            .collect::<Vec<_>>();
+
+        let tile_images = raw_tiles
+            .iter()
+            .map(|t| {
+                let mut bytes = vec![];
+                t.write_to(&mut bytes, image::ImageOutputFormat::Png)
+                    .expect("Could not encode tile as PNG!");
+                bytes
+            })
+            .collect();
+
+
+        return CanvasState {
+            overview_image,
+            tile_images,
+            raw_overview,
+            raw_tiles,
+        };
+    }
+    const BOUND: Bound = Bound::Bounded {
+        is_fixed_size: false,
+        max_size: 1_000_000,
+    };
+}
 
 #[derive(Clone, Debug)]
 pub struct CanvasState {
@@ -113,6 +196,23 @@ fn get_tile_offset(tile_idx: usize) -> (u32, u32) {
 // 7 days
 const EXPERIMENT_DURATION: u64 = Duration::from_secs(604800).as_nanos() as u64;
 
+
+use bincode;
+
+impl Storable for EditsState {
+    fn to_bytes(&self) -> Cow<[u8]> {
+        let mut bytes = vec![];
+        bincode::serialize_into(&mut bytes, self).unwrap();
+        bytes.into()
+    }
+    fn from_bytes(bytes: Cow<[u8]>) -> EditsState {
+        bincode::deserialize(&bytes).unwrap()
+    }
+    const BOUND: Bound = Bound::Bounded {
+        is_fixed_size: false,
+        max_size: 1_000_000,
+    };
+}
 #[derive(Clone, Debug, Default, Serialize, Deserialize)]
 pub struct EditsState {
     pub start: Option<u64>,

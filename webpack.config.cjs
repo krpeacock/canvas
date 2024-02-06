@@ -35,7 +35,11 @@ function initCanisterEnv() {
 }
 const canisterEnvVariables = initCanisterEnv();
 
-const isDevelopment = process.env.NODE_ENV !== "production";
+const isDevelopment = process.env.DFX_NETWORK !== "ic";
+
+const II_URL = isDevelopment
+  ? `http://rdmx6-jaaaa-aaaaa-aaadq-cai.localhost:4943`
+  : `https://identity.ic0.app`;
 
 const frontendDirectory = "canvas_assets";
 
@@ -87,6 +91,7 @@ module.exports = {
     }),
     new webpack.EnvironmentPlugin({
       NODE_ENV: "development",
+      II_URL,
       ...canisterEnvVariables,
     }),
     new webpack.ProvidePlugin({
@@ -98,13 +103,16 @@ module.exports = {
   devServer: {
     proxy: {
       "/api": {
-        target: "http://127.0.0.1:8000",
+        target: "http://127.0.0.1:4943",
         changeOrigin: true,
         pathRewrite: {
           "^/api": "/api",
         },
       },
     },
+    // fallback to index.html for SPA
+    historyApiFallback: true,
+
     static: path.resolve(__dirname, "src", frontendDirectory, "assets"),
     hot: true,
     watchFiles: [path.resolve(__dirname, "src", frontendDirectory)],

@@ -1,19 +1,47 @@
-use ic_cdk::{
-    export::{
-        candid::{candid_method, export_service, CandidType},
-        Principal,
-    },
-    storage,
-};
-use ic_cdk_macros::*;
-use image::{GenericImageView, Pixel};
-
 use crate::{
-    http_request::{HeaderField, HttpRequest, HttpResponse},
+    http_request::{ HttpRequest},
     state::{CanvasState, EditsState, COOLDOWN},
 };
+use api::management_canister::http_request::HttpResponse;
+use candid::*;
+use ic_cdk::{api::{self, management_canister::http_request::HttpHeader}, query, storage, update};
+use image::{GenericImageView, Pixel};
 use serde::Deserialize;
-use std::collections::{HashMap, HashSet};
+use std::{
+    collections::{BTreeMap, HashMap, HashSet},
+};
+
+use ic_stable_structures::memory_manager::{MemoryId, MemoryManager, VirtualMemory};
+use ic_stable_structures::{DefaultMemoryImpl, StableBTreeMap};
+use std::cell::RefCell;
+
+type Memory = VirtualMemory<DefaultMemoryImpl>;
+
+thread_local! {
+    // The memory manager is used for simulating multiple memories. Given a `MemoryId` it can
+    // return a memory that can be used by stable structures.
+    static MEMORY_MANAGER: RefCell<MemoryManager<DefaultMemoryImpl>> =
+        RefCell::new(MemoryManager::init(DefaultMemoryImpl::default()));
+
+    // Initialize a `StableBTreeMap` with `MemoryId(0)`.
+    static TIME: RefCell<StableBTreeMap<u128, u64, Memory>> = RefCell::new(
+        StableBTreeMap::init(
+            MEMORY_MANAGER.with(|m| m.borrow().get(MemoryId::new(0))),
+        )
+    );
+    // Initialize a `StableBTreeMap` with `MemoryId(1)`.
+    static CANVAS_STATE: RefCell<StableBTreeMap<u128, CanvasState, Memory>> = RefCell::new(
+        StableBTreeMap::init(
+            MEMORY_MANAGER.with(|m| m.borrow().get(MemoryId::new(1))),
+        )
+    );
+    // Initialize a `StableBTreeMap` with `MemoryId(2)`.
+    static EDITS_STATE: RefCell<StableBTreeMap<u128, EditsState, Memory>> = RefCell::new(
+        StableBTreeMap::init(
+            MEMORY_MANAGER.with(|m| m.borrow().get(MemoryId::new(2))),
+        )
+    );
+}
 
 /// All images have square shape and the side length must be a power of 2.
 pub const IMAGE_SIZE: u32 = 1024;
@@ -37,10 +65,12 @@ pub struct Color {
     pub a: u8,
 }
 
+const TIME_KEY: u128 = 0;
+
 #[candid_method(query)]
 #[query]
 pub fn time_left() -> u64 {
-    storage::get::<EditsState>().time_left()
+    TIME.with(|t| t.borrow().get(&TIME_KEY).unwrap())
 }
 
 #[candid_method(query)]
@@ -56,19 +86,21 @@ pub fn cycles() -> u64 {
 }
 
 // Don't share this with the candid interface
-#[candid_method(query)]
-#[query]
-pub fn backup_edits() -> HashMap<ic_cdk::export::Principal, u64> {
-    let edits = storage::get::<EditsState>();
-    return edits.edits.clone();
-}
+// #[candid_method(query)]
+// #[query]
+// pub fn backup_edits() -> HashMap<Principal, u64> {
+//     let edits = MAP.borrow_mut::<EditsState>();
+//     return edits.edits.clone();
+// }
+
+
 
 #[candid_method(query)]
 #[query]
 pub fn http_request(request: HttpRequest) -> HttpResponse {
     // /tile.<tile_idx>.png
     let resp = if request.url.starts_with("/tile.") {
-        let canvas = storage::get::<CanvasState>();
+        let canvas: CanvasState = CANVAS_STATE.with(|c| c.borrow().get(&0).unwrap().clone());
         let rem = &request.url[6..];
         match rem.find('.') {
             None => None,
@@ -80,17 +112,17 @@ pub fn http_request(request: HttpRequest) -> HttpResponse {
                     .expect("invalid tile")
                     .clone();
                 Some(HttpResponse {
-                    status_code: 200,
+                    status: Nat::from(200 as u64),
                     headers: png_header_fields(&tile_png),
                     body: tile_png,
                 })
             }
         }
     } else if request.url.starts_with("/overview.png") {
-        let canvas = storage::get::<CanvasState>();
+        let canvas = CANVAS_STATE.with(|c| c.borrow().get(&0).unwrap().clone());
         let overview_png = canvas.overview_image.clone();
         Some(HttpResponse {
-            status_code: 200,
+            status: Nat::from(200 as u64),
             headers: png_header_fields(&overview_png),
             body: overview_png,
         })
@@ -99,7 +131,7 @@ pub fn http_request(request: HttpRequest) -> HttpResponse {
     };
 
     resp.unwrap_or_else(|| HttpResponse {
-        status_code: 404,
+        status: Nat::from(404 as u64),
         headers: vec![],
         body: request.body.to_vec(),
     })
@@ -108,57 +140,57 @@ pub fn http_request(request: HttpRequest) -> HttpResponse {
 #[candid_method(update)]
 #[update]
 fn update_overview() {
-    let canvas = storage::get_mut::<CanvasState>();
+    let mut canvas = CANVAS_STATE.with(|c| c.borrow().get(&0).unwrap().clone());
     canvas.update_overview();
 }
 
 #[derive(Clone, Debug, Default, CandidType, Deserialize)]
-struct PixelUpdate {
-    tile_idx: u32, pos: Position, color: Color
+pub struct PixelUpdate {
+    tile_idx: u32,
+    pos: Position,
+    color: Color,
 }
 
-// #[candid_method(update)]
-// #[update]
-// fn update_pixel(pixel: PixelUpdate) {
-    // let canvas = storage::get_mut::<CanvasState>();
-    // let edits = storage::get_mut::<EditsState>();
-    // if edits
-    //     .register_edit(ic_cdk::caller(), ic_cdk::api::time())
-    //     .is_ok()
-    // {
-    //     canvas.update_pixel(pixel.tile_idx, pixel.pos, pixel.color);
-    // }
-// }
+#[candid_method(update)]
+#[update]
+fn update_pixel(pixel: PixelUpdate) {
+    let mut canvas = CANVAS_STATE.with(|c| c.borrow().get(&0).unwrap().clone());
+    let mut edits = EDITS_STATE.with(|e| e.borrow().get(&0).unwrap().clone());
+    if edits
+        .register_edit(ic_cdk::caller(), ic_cdk::api::time())
+        .is_ok()
+    {
+        canvas.update_pixel(pixel.tile_idx, pixel.pos, pixel.color);
+    }
+}
 
-#[init]
+#[ic_cdk::init]
 fn init() {
-    let _canvas = storage::get_mut::<CanvasState>();
-    let _edits = storage::get_mut::<EditsState>();
     ic_cdk::println!("initializing...");
 }
 
-#[export_name = "canister_pre_upgrade"]
-fn canister_pre_upgrade() {
-    ic_cdk::println!("Executing pre upgrade");
-    let edits = storage::get::<EditsState>();
-    let canvas = storage::get_mut::<CanvasState>();
-    canvas.update_overview();
-    storage::stable_save((
-        edits.edits.clone(),
-        edits.start.clone(),
-        edits.pixel_requested.clone(),
-        canvas.tile_images.clone(),
-        canvas.overview_image.clone(),
-    ))
-    .ok();
-}
+// #[export_name = "canister_pre_upgrade"]
+// fn canister_pre_upgrade() {
+//     ic_cdk::println!("Executing pre upgrade");
+//     let edits = EDITS_STATE.with(|c| c.borrow().get(&0).unwrap().clone());
+//     let mut canvas = CANVAS_STATE.with(|c| c.borrow().get(&0).unwrap().clone());
+//     canvas.update_overview();
+//     storage::stable_save((
+//         edits.edits.clone(),
+//         edits.start.clone(),
+//         edits.pixel_requested.clone(),
+//         canvas.tile_images.clone(),
+//         canvas.overview_image.clone(),
+//     ))
+//     .ok();
+// }
 
 #[export_name = "canister_post_upgrade"]
 fn canister_post_upgrade() {
     ic_cdk::println!("Executing post upgrade");
 
-    let edits_state = storage::get_mut::<EditsState>();
-    let canvas_state = storage::get_mut::<CanvasState>();
+    let mut edits_state = EDITS_STATE.with(|c| c.borrow().get(&0).unwrap().clone());
+    let mut canvas_state = CANVAS_STATE.with(|c| c.borrow().get(&0).unwrap().clone());
     if let Ok((edits, start, pixel_requested, tiles, overview)) = storage::stable_restore::<(
         HashMap<Principal, u64>,
         Option<u64>,
@@ -198,16 +230,9 @@ fn canister_post_upgrade() {
     }
 }
 
-fn png_header_fields(body: &[u8]) -> Vec<HeaderField> {
+fn png_header_fields(body: &[u8]) -> Vec<HttpHeader> {
     vec![
-        HeaderField("Content-Type".to_string(), "image/png".to_string()),
-        HeaderField("Content-Length".to_string(), body.len().to_string()),
+        HttpHeader { name: "Content-Type".to_string(), value: "image/png".to_string()},
+        HttpHeader{ name: "Content-Length".to_string(), value: body.len().to_string()},
     ]
 }
-
-export_service!();
-
-// #[ic_cdk_macros::query(name = "__get_candid_interface_tmp_hack")]
-// fn export_candid() -> String {
-//     __export_service()
-// }

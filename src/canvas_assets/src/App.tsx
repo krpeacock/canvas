@@ -23,7 +23,7 @@ import { Toaster } from "react-hot-toast";
 import { Principal } from "@dfinity/principal";
 import { canvas_backend } from "../../declarations/canvas_backend";
 import { page_visits } from "../../declarations/page_visits";
-import { BrowserRouter as Router, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Canvas from "./Canvas";
 import Landing from "./Landing";
 
@@ -127,16 +127,6 @@ function App(props: Props) {
           }}
         >
           <Header>
-            <View backgroundColor="blue-400" padding="1rem">
-              <Text>
-                Friday, Sep 17 - The IC Canvas Experiment has concluded. Thank
-                you for participating, and check{" "}
-                <a href="https://dscvr.one/p/ic-canvas">
-                  https://dscvr.one/p/ic-canvas
-                </a>{" "}
-                for NFT announcements!
-              </Text>
-            </View>
             <Flex
               direction="row"
               wrap
@@ -151,12 +141,10 @@ function App(props: Props) {
             </Flex>
           </Header>
           <Router>
-            <Route path="/" exact>
-              <Landing />
-            </Route>
-            <Route path="/archive" exact>
-              <Canvas />
-            </Route>
+            <Routes>
+              <Route path="/" element={<Landing />}></Route>
+              <Route path="/archive" element={<Canvas />}></Route>
+            </Routes>
           </Router>
           <footer>
             2021 - A <a href="https://kyle-peacock.com">Kyle Peacock</a> project

@@ -2,26 +2,26 @@
   "canisters": {
     "canvas_backend": {
       "dependencies": [
-        "dialectic_nft"
+        "internet-identity"
       ],
       "package": "canvas_backend",
       "type": "rust",
-      "candid": "src/canvas_backend/src/canvas_backend.did"
-    },
-    "dialectic_nft": {
-      "type": "rust",
-      "package": "dialectic_nft",
-      "candid": "nft.did",
-      "declarations": {
-        "node_compatibility": true
-      }
+      "candid": "src/canvas_backend/src/canvas_backend.did",
+      "gzip": true
     },
     "canvas_assets": {
       "type": "assets",
+      "dependencies": [
+        "internet-identity"
+      ],
       "source": [
         "src/canvas_assets/assets",
         "dist/canvas_assets/"
       ]
+    },
+    "internet-identity": {
+      "type": "pull",
+      "id": "rdmx6-jaaaa-aaaaa-aaadq-cai"
     }
   },
   "defaults": {
@@ -30,11 +30,6 @@
       "packtool": ""
     }
   },
-  "networks": {
-    "local": {
-      "bind": "127.0.0.1:8000",
-      "type": "ephemeral"
-    }
-  },
+  "output_env_file": ".env",
   "version": 1
 }

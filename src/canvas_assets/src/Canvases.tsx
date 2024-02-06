@@ -249,7 +249,7 @@ function Canvases(props: Props) {
 
   const overviewImage =
     process.env.NODE_ENV === "development"
-      ? `http://localhost:8000/overview.png?canisterId=${process.env.CANVAS_BACKEND_CANISTER_ID}`
+      ? `http://localhost:4943/overview.png?canisterId=${process.env.CANVAS_BACKEND_CANISTER_ID}`
       : `https://${process.env.CANVAS_BACKEND_CANISTER_ID}.raw.ic0.app/overview.png`;
 
   return (
