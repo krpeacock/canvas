@@ -8,7 +8,7 @@ use ic_cdk::{api::{self, management_canister::http_request::HttpHeader}, query, 
 use image::{GenericImageView, Pixel};
 use serde::Deserialize;
 use std::{
-    collections::{BTreeMap, HashMap, HashSet},
+    collections::{HashMap, HashSet},
 };
 
 use ic_stable_structures::memory_manager::{MemoryId, MemoryManager, VirtualMemory};

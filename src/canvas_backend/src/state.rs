@@ -19,9 +19,9 @@ impl Storable for CanvasState {
         self.raw_overview
             .write_to(&mut bytes, image::ImageOutputFormat::Png)
             .expect("Could not encode overview as PNG!");
-        let overview_image = bytes;
+        let _overview_image = bytes;
 
-        let tile_images: Vec<_> = self
+        let _tile_images: Vec<_> = self
             .raw_tiles
             .iter()
             .map(|t| {
@@ -36,10 +36,10 @@ impl Storable for CanvasState {
         self.raw_overview
             .write_to(&mut bytes, image::ImageOutputFormat::Png)
             .expect("Could not encode overview as PNG!");
-        let raw_overview = bytes;
+        let _raw_overview = bytes;
 
-        let mut bytes = vec![];
-        self.raw_tiles
+        let bytes = vec![];
+        let _  = self.raw_tiles
             .iter()
             .map(|t| {
                 let mut bytes = vec![];
