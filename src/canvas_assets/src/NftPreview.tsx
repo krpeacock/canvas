@@ -8,10 +8,10 @@ import React, { useState } from "react";
 import styled from "styled-components";
 import FullScreen from "@spectrum-icons/workflow/FullScreen";
 
-const Picture = styled.picture<{ isdark: boolean }>`
+const Picture = styled.picture<{ $isdark: boolean }>`
   display: flex;
   aspect-ratio: 1;
-  background: ${(props) => (props.isdark ? "black" : "white")};
+  background: ${(props) => (props.$isdark ? "black" : "white")};
   img {
     width: 100%;
     max-height: initial;
@@ -73,7 +73,7 @@ function NftPreview(props: Props) {
                 </ActionButton>
               </Flex>
               <Flex direction="column" marginBottom="1rem">
-                <Picture isdark={isdark}>
+                <Picture $isdark={isdark}>
                   <img src={imgSrc} />
                 </Picture>
                 <Heading level={3}>{title}</Heading>
@@ -96,7 +96,7 @@ function NftPreview(props: Props) {
               <FullScreen></FullScreen>
             </ActionButton>
           </Flex>
-          <Picture isdark={isdark}>
+          <Picture $isdark={isdark}>
             <img src={imgSrc} />
           </Picture>
           <Heading level={3}>{title}</Heading>

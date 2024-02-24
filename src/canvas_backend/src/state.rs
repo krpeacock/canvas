@@ -1,7 +1,7 @@
 use std::{
-    borrow::Cow, collections::{HashMap, HashSet}, io::Cursor, time::Duration
+    borrow::Cow, cell::RefCell, collections::{HashMap, HashSet}, io::Cursor, time::Duration
 };
-use ic_stable_structures::Storable;
+use ic_stable_structures::{memory_manager::{MemoryId, MemoryManager, VirtualMemory}, StableBTreeMap, DefaultMemoryImpl,  Storable};
 use ic_stable_structures::storable::Bound;
 
 pub const COOLDOWN: u64 = 1;
@@ -12,6 +12,31 @@ use crate::api::{
 use candid::Principal;
 use image::{DynamicImage, Rgba, RgbaImage};
 use serde::{Deserialize, Serialize};
+
+type Memory = VirtualMemory<DefaultMemoryImpl>;
+
+thread_local! {
+    // The memory manager is used for simulating multiple memories. Given a `MemoryId` it can
+    // return a memory that can be used by stable structures.
+    static MEMORY_MANAGER: RefCell<MemoryManager<DefaultMemoryImpl>> =
+        RefCell::new(MemoryManager::init(DefaultMemoryImpl::default()));
+
+    // Initialize a `StableBTreeMap` with `MemoryId(0)`.
+    static RAW_TILES: RefCell<StableBTreeMap<u8, Vec<u8>, Memory>> = RefCell::new(
+        StableBTreeMap::init(
+            MEMORY_MANAGER.with(|m| m.borrow().get(MemoryId::new(0))),
+        )
+    );
+
+    // Initialize a `StableBTreeMap` with `MemoryId(1)`.
+    static EDITS: RefCell<StableBTreeMap<u8, EditsState, Memory>> = RefCell::new(
+        StableBTreeMap::init(
+            MEMORY_MANAGER.with(|m| m.borrow().get(MemoryId::new(1))),
+        )
+    );
+}
+
+
 
 impl Storable for CanvasState {
     fn to_bytes(&self) -> Cow<[u8]> {
@@ -105,9 +130,26 @@ pub struct CanvasState {
 
 impl CanvasState {
     pub fn new() -> Self {
-        let raw_tiles = (0..NO_TILES)
-            .map(|_i| DynamicImage::ImageRgba8(RgbaImage::new(TILE_SIZE, TILE_SIZE)))
-            .collect::<Vec<_>>();
+        let raw_tiles: Vec<DynamicImage>;
+
+        let saved_raw_tiles: Vec<_> = RAW_TILES.with(|tiles| tiles.borrow().iter().collect());
+
+        if saved_raw_tiles.is_empty() {
+            raw_tiles = (0..NO_TILES)
+                .map(|_i| DynamicImage::ImageRgba8(RgbaImage::new(TILE_SIZE, TILE_SIZE)))
+                .collect::<Vec<_>>();
+        }
+        else {
+            raw_tiles = saved_raw_tiles
+                .iter()
+                .map(|t| {
+                    let img = image::io::Reader::new(Cursor::new(t.1.clone()))
+                        .with_guessed_format()
+                        .unwrap();
+                    img.decode().unwrap()
+                })
+                .collect::<Vec<_>>();
+        }
 
         let tile_images = raw_tiles
             .iter()
@@ -170,6 +212,35 @@ impl CanvasState {
             .tile_images
             .get_mut(tile_idx)
             .expect("Invalid tile index.") = bytes;
+
+        self.raw_tiles = self
+            .tile_images
+            .iter()
+            .map(|t| {
+                let img = image::io::Reader::new(Cursor::new(t))
+                    .with_guessed_format()
+                    .unwrap();
+                img.decode().unwrap()
+            })
+            .collect::<Vec<_>>();
+
+        let newtiles: Vec<_> = self.raw_tiles.iter().map(
+            |t| {
+                let mut bytes = vec![];
+                t.write_to(&mut bytes, image::ImageOutputFormat::Png)
+                .expect("Could not encode tile as PNG!");
+            (0, bytes)
+        }).collect();
+
+        RAW_TILES.with(|tiles| {
+            *tiles.borrow_mut() = StableBTreeMap::init(
+                MEMORY_MANAGER.with(|m| m.borrow().get(MemoryId::new(0))),
+            );
+            for (i, t) in newtiles.iter() {
+                tiles.borrow_mut().insert(*i, t.clone());
+            }
+        });
+        
     }
 
     pub fn update_overview(&mut self) {

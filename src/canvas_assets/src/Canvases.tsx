@@ -10,8 +10,8 @@ import { Position, Focus, FOCUS_SIZE } from "./tiles";
 import Submit from "./Submit";
 import { hexToRgb, rgbToHex } from "./utils";
 
-const DragArea = styled.section<{ tileSize: string }>`
-  --tileSize: ${(props) => props.tileSize};
+const DragArea = styled.section<{ $tileSize: string }>`
+  --tileSize: ${(props) => props.$tileSize};
   display: flex;
   flex-direction: column;
   position: relative;
@@ -249,7 +249,7 @@ function Canvases(props: Props) {
 
   const overviewImage =
     process.env.NODE_ENV === "development"
-      ? `http://localhost:4943/overview.png?canisterId=${process.env.CANVAS_BACKEND_CANISTER_ID}`
+      ? `http://${process.env.CANVAS_BACKEND_CANISTER_ID}.localhost:4943/overview.png`
       : `https://${process.env.CANVAS_BACKEND_CANISTER_ID}.raw.ic0.app/overview.png`;
 
   return (
@@ -266,7 +266,7 @@ function Canvases(props: Props) {
           }}
         />
       </div>
-      <DragArea tileSize={`${64}px`} className="dragarea">
+      <DragArea $tileSize={`${64}px`} className="dragarea">
         <canvas
           id="canvas1"
           onClick={handleClick}

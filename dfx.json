@@ -12,7 +12,8 @@
     "canvas_assets": {
       "type": "assets",
       "dependencies": [
-        "internet-identity"
+        "internet-identity",
+        "canvas_backend"
       ],
       "source": [
         "src/canvas_assets/assets",

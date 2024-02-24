@@ -2,15 +2,15 @@ const path = require("path");
 const webpack = require("webpack");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const TerserPlugin = require("terser-webpack-plugin");
+const dotenv = require("dotenv");
+dotenv.config();
 
 function initCanisterEnv() {
   let localCanisters, prodCanisters;
   try {
-    localCanisters = require(path.resolve(
-      ".dfx",
-      "local",
-      "canister_ids.json"
-    ));
+    localCanisters = require(
+      path.resolve(".dfx", "local", "canister_ids.json")
+    );
   } catch (error) {
     console.log("No local canister_ids.json found. Continuing production");
   }
@@ -92,6 +92,7 @@ module.exports = {
     new webpack.EnvironmentPlugin({
       NODE_ENV: "development",
       II_URL,
+      CANVAS_BACKEND_CANISTER_ID: process.env.CANVAS_BACKEND_CANISTER_ID,
       ...canisterEnvVariables,
     }),
     new webpack.ProvidePlugin({
